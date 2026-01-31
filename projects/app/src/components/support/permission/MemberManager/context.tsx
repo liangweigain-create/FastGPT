@@ -123,22 +123,34 @@ const CollaboratorContextProvider = ({
     loading: isFetchingCollaborator
   } = useRequest(
     async () => {
-      if (feConfigs.isPlus) {
-        const { clbs, parentClbs = [] } = await onGetCollaboratorList();
-        return {
-          clbs: clbs.map((clb) => ({
-            ...clb,
-            permission: new Permission({ role: clb.permission.role })
-          })),
-          parentClbs: parentClbs.map((clb) => ({
-            ...clb,
-            permission: new Permission({ role: clb.permission.role })
-          }))
-        };
-      }
+      // 这里fastgpt限制了只有plus版本才需要
+      // if (feConfigs.isPlus) {
+      // const { clbs, parentClbs = [] } = await onGetCollaboratorList();
+      // return {
+      //   clbs: clbs.map((clb) => ({
+      //     ...clb,
+      //     permission: new Permission({ role: clb.permission.role })
+      //   })),
+      //   parentClbs: parentClbs.map((clb) => ({
+      //     ...clb,
+      //     permission: new Permission({ role: clb.permission.role })
+      //   }))
+      // };
+      //   return {  <- 这里fast故意加的如果用户不是plus，返回clibs（协作者）空数组
+      //     clbs: [],
+      //     parentClbs: [] <- 这里fast故意加的如果用户不是plus，返回parentClbs（父级协作者）空数组
+      //   };
+      // }
+      const { clbs, parentClbs = [] } = await onGetCollaboratorList();
       return {
-        clbs: [],
-        parentClbs: []
+        clbs: clbs.map((clb) => ({
+          ...clb,
+          permission: new Permission({ role: clb.permission.role })
+        })),
+        parentClbs: parentClbs.map((clb) => ({
+          ...clb,
+          permission: new Permission({ role: clb.permission.role })
+        }))
       };
     },
     {

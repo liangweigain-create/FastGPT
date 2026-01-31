@@ -30,13 +30,14 @@ import type {
 import type { PermissionValueType } from '@fastgpt/global/support/permission/type';
 
 /* --------------- team  ---------------- */
+/* --------------- team  ---------------- */
 export const getTeamList = (status: `${TeamMemberSchema['status']}`) =>
-  GET<TeamTmbItemType[]>(`/proApi/support/user/team/list`, { status });
+  GET<TeamTmbItemType[]>(`/support/user/team/list`, { status });
 export const postCreateTeam = (data: CreateTeamProps) =>
   POST<string>(`/proApi/support/user/team/create`, data);
 export const putUpdateTeam = (data: UpdateTeamProps) => PUT(`/support/user/team/update`, data);
 export const putSwitchTeam = (teamId: string) =>
-  PUT<string>(`/proApi/support/user/team/switch`, { teamId });
+  PUT<string>(`/support/user/team/switch`, { teamId });
 
 /* --------------- team member ---------------- */
 export const getTeamMembers = (
@@ -48,7 +49,7 @@ export const getTeamMembers = (
     orgId?: string;
     groupId?: string;
   }>
-) => POST<PaginationResponse<TeamMemberItemType>>(`/proApi/support/user/team/member/list`, props);
+) => POST<PaginationResponse<TeamMemberItemType>>(`/support/user/team/member/list`, props);
 export const getTeamMemberCount = () =>
   GET<{ count: number }>(`/proApi/support/user/team/member/count`);
 

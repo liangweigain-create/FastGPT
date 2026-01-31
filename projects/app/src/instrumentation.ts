@@ -4,7 +4,9 @@ import { exit } from 'process';
   Init system
 */
 export async function register() {
+  console.log('[FastGPT] Register function called');
   try {
+    console.log('[FastGPT] Runtime:', process.env.NEXT_RUNTIME);
     if (process.env.NEXT_RUNTIME === 'nodejs') {
       await import('@fastgpt/service/common/proxy');
 
@@ -15,7 +17,7 @@ export async function register() {
         { systemStartCb },
         { initGlobalVariables, getInitConfig, initSystemPluginTags, initAppTemplateTypes },
         { initVectorStore },
-        { initRootUser },
+        { initRootUser, initSystemUsers },
         { startMongoWatch },
         { startCron },
         { startTrainingQueue },
@@ -75,7 +77,11 @@ export async function register() {
       });
 
       //init system config；init vector database；init root user
-      await Promise.all([getInitConfig(), initVectorStore(), initRootUser(), loadSystemModels()]);
+      await Promise.all([getInitConfig(), initVectorStore(), loadSystemModels()]);
+      await initRootUser();
+      console.log('Init root user success');
+      await initSystemUsers();
+      console.log('Init system users success');
 
       await Promise.all([
         preLoadWorker().catch(),

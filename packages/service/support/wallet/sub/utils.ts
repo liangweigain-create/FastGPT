@@ -88,7 +88,8 @@ export const initTeamFreePlan = async ({
   teamId: string;
   session?: ClientSession;
 }) => {
-  const freePoints = global?.subPlans?.standard?.[StandardSubLevelEnum.free]?.totalPoints || 100;
+  const freePoints =
+    global?.subPlans?.standard?.[StandardSubLevelEnum.free]?.totalPoints || 999999999;
 
   const freePlan = await MongoTeamSub.findOne({
     teamId,
