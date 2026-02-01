@@ -1,64 +1,25 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { jsonRes } from '@fastgpt/service/common/response';
-import { FastGPTProUrl } from '@fastgpt/service/common/system/constants';
-import { Readable } from 'stream';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    const { path = [], ...query } = req.query as any;
-    const requestPath = `/api/${path?.join('/')}?${new URLSearchParams(query).toString()}`;
+  const { path = [], ...query } = req.query as any;
+  const requestPath = `/proApi/${path?.join('/')}`;
+  const method = req.method;
 
-    if (!requestPath) {
-      throw new Error('url is empty');
+  // [Privatization] Log the blocked/mocked request for debugging
+  console.warn(`[Privatization Mock] triggered: ${method} ${requestPath}`, {
+    query,
+    body: req.body
+  });
+
+  // [Privatization] Return a generic success response to prevent UI crashes,
+  // but with a clear message that this is a mock.
+  jsonRes(res, {
+    code: 200,
+    message: `[Privatization] This feature depends on the Commercial API and has not been implemented locally yet. (Path: ${requestPath})`,
+    data: {
+      mock: true,
+      hint: 'To implement this feature, create a local API route in projects/app/src/pages/api/...'
     }
-    if (!FastGPTProUrl) {
-      throw new Error(`未配置商业版链接: ${path}`);
-    }
-
-    const targetUrl = new URL(requestPath, FastGPTProUrl);
-
-    const headers: Record<string, string> = {};
-    for (const [key, value] of Object.entries(req.headers)) {
-      if (key === 'rootkey' || key === 'host' || key === 'connection') continue;
-      if (value) {
-        headers[key] = Array.isArray(value) ? value.join(', ') : value;
-      }
-    }
-
-    const request = new Request(targetUrl, {
-      // @ts-ignore
-      duplex: 'half',
-      method: req.method,
-      headers,
-      body: req.method === 'GET' || req.method === 'HEAD' ? null : (req as any)
-    });
-
-    const response = await fetch(request);
-
-    response.headers.forEach((value, key) => {
-      const lowerKey = key.toLowerCase();
-      if (lowerKey === 'content-encoding' || lowerKey === 'transfer-encoding') return;
-      res.setHeader(key, value);
-    });
-
-    res.status(response.status);
-
-    if (response.body) {
-      const nodeStream = Readable.fromWeb(response.body as any);
-      nodeStream.pipe(res);
-    } else {
-      res.end();
-    }
-  } catch (error) {
-    jsonRes(res, {
-      code: 500,
-      error
-    });
-  }
+  });
 }
-
-export const config = {
-  api: {
-    bodyParser: false
-  }
-};

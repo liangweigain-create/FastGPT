@@ -144,13 +144,14 @@ export async function initSystemConfig() {
       ...fileRes?.feConfigs,
       ...defaultFeConfigs,
       ...(fastgptConfig.feConfigs || {}),
-      isPlus: !!licenseData,
+      // isPlus: !!licenseData,
+      isPlus: true, // [Privatization] Always enabled to unlock features
       hideChatCopyrightSetting: process.env.HIDE_CHAT_COPYRIGHT_SETTING === 'true',
       show_aiproxy: !!process.env.AIPROXY_API_ENDPOINT,
       show_coupon: process.env.SHOW_COUPON === 'true',
       show_discount_coupon: process.env.SHOW_DISCOUNT_COUPON === 'true',
-      show_dataset_enhance: licenseData?.functions?.datasetEnhance,
-      show_batch_eval: licenseData?.functions?.batchEval,
+      show_dataset_enhance: true, // [Privatization] Always enabled
+      show_batch_eval: true, // [Privatization] Always enabled
       payFormUrl: process.env.PAY_FORM_URL || ''
     },
     systemEnv: {

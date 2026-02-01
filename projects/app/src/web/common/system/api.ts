@@ -13,13 +13,19 @@ export const getSystemInitData = (bufferId?: string) =>
 
 // model permissions
 
-export const getModelCollaborators = (model: string) =>
-  GET<CollaboratorListType>('/proApi/system/model/collaborator/list', {
-    model
+export const getModelCollaborators = (appId: string) =>
+  GET<CollaboratorListType>('/core/app/collaborator/list', {
+    appId
   });
 
-export const updateModelCollaborators = (props: UpdateClbPermissionProps & { models: string[] }) =>
-  POST('/proApi/system/model/collaborator/update', props);
+export const updateModelCollaborators = (
+  props: UpdateClbPermissionProps & { models: string[] }
+) => {
+  const { models, ...rest } = props;
+  return Promise.all(
+    models.map((appId) => POST('/core/app/collaborator/update', { appId, ...rest }))
+  );
+};
 
 export const getMyModels = (props: GetMyModelsQuery) =>
   GET<GetMyModelsResponse>('/core/ai/model/getMyModels', props);

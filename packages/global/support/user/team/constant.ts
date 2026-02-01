@@ -3,7 +3,9 @@ export const TeamMemberCollectionName = 'team_members';
 export const TeamTagsCollectionName = 'team_tags';
 
 export enum TeamMemberRoleEnum {
-  owner = 'owner'
+  owner = 'owner',
+  admin = 'admin',
+  member = 'member'
 }
 
 export const TeamMemberRoleMap = {

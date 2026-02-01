@@ -260,13 +260,15 @@ function PermissionManage({
             <Tbody>
               <>
                 <Tr userSelect={'none'}>
-                  <HStack pl={3} pt={3} pb={isExpandMember && !!tmbList.length ? 0 : 3}>
-                    <MyIconButton
-                      icon={isExpandMember ? 'common/downArrowFill' : 'common/rightArrowFill'}
-                      onClick={setExpandMember.toggle}
-                    />
-                    <Box color={'myGray.900'}>{t('user:team.group.members')}</Box>
-                  </HStack>
+                  <Td colSpan={6} borderBottom={'none'} p={0}>
+                    <HStack pl={3} pt={3} pb={isExpandMember && !!tmbList.length ? 0 : 3}>
+                      <MyIconButton
+                        icon={isExpandMember ? 'common/downArrowFill' : 'common/rightArrowFill'}
+                        onClick={setExpandMember.toggle}
+                      />
+                      <Box color={'myGray.900'}>{t('user:team.group.members')}</Box>
+                    </HStack>
+                  </Td>
                 </Tr>
                 {isExpandMember &&
                   tmbList.map((member) => (
@@ -320,13 +322,15 @@ function PermissionManage({
               <>
                 <Tr borderBottom={'1px solid'} borderColor={'myGray.200'} />
                 <Tr userSelect={'none'}>
-                  <HStack pl={3} pt={3} pb={isExpandOrg && !!orgList.length ? 0 : 3}>
-                    <MyIconButton
-                      icon={isExpandOrg ? 'common/downArrowFill' : 'common/rightArrowFill'}
-                      onClick={setExpandOrg.toggle}
-                    />
-                    <Text>{t('user:team.org.org')}</Text>
-                  </HStack>
+                  <Td colSpan={6} borderBottom={'none'} p={0}>
+                    <HStack pl={3} pt={3} pb={isExpandOrg && !!orgList.length ? 0 : 3}>
+                      <MyIconButton
+                        icon={isExpandOrg ? 'common/downArrowFill' : 'common/rightArrowFill'}
+                        onClick={setExpandOrg.toggle}
+                      />
+                      <Text>{t('user:team.org.org')}</Text>
+                    </HStack>
+                  </Td>
                 </Tr>
                 {isExpandOrg &&
                   orgList.map((org) => (
@@ -375,13 +379,15 @@ function PermissionManage({
               <>
                 <Tr borderBottom={'1px solid'} borderColor={'myGray.200'} />
                 <Tr userSelect={'none'}>
-                  <HStack pl={3} pt={3} pb={isExpandGroup && !!groupList.length ? 0 : 3}>
-                    <MyIconButton
-                      icon={isExpandGroup ? 'common/downArrowFill' : 'common/rightArrowFill'}
-                      onClick={setExpandGroup.toggle}
-                    />
-                    <Text>{t('user:team.group.group')}</Text>
-                  </HStack>
+                  <Td colSpan={6} borderBottom={'none'} p={0}>
+                    <HStack pl={3} pt={3} pb={isExpandGroup && !!groupList.length ? 0 : 3}>
+                      <MyIconButton
+                        icon={isExpandGroup ? 'common/downArrowFill' : 'common/rightArrowFill'}
+                        onClick={setExpandGroup.toggle}
+                      />
+                      <Text>{t('user:team.group.group')}</Text>
+                    </HStack>
+                  </Td>
                 </Tr>
                 {isExpandGroup &&
                   groupList.map((group) => (
