@@ -1,55 +1,41 @@
 import { NextAPI } from '@/service/middleware/entry';
 import { authCert } from '@fastgpt/service/support/permission/auth/common';
 import { MongoInvitationLink } from '@fastgpt/service/support/user/team/invitationLink/schema';
-import { getTmbPermission } from '@fastgpt/service/support/permission/controller';
-import {
-  PerResourceTypeEnum,
-  ManagePermissionVal
-} from '@fastgpt/global/support/permission/constant';
-import { Permission } from '@fastgpt/global/support/permission/controller';
+import { MongoTeamMember } from '@fastgpt/service/support/user/team/teamMemberSchema';
+import { TeamMemberRoleEnum } from '@fastgpt/global/support/user/team/constant';
 
 async function handler(req: any, res: any) {
   const { teamId, tmbId } = await authCert({ req, authToken: true });
 
-  const perVal = await getTmbPermission({
-    teamId,
-    tmbId,
-    resourceType: PerResourceTypeEnum.team,
-    resourceId: undefined
-  });
-
-  const per = new Permission({ role: perVal, isOwner: false });
-  if (!per.checkPer(ManagePermissionVal)) {
+  // Check if user is owner or admin
+  const tmb = await MongoTeamMember.findById(tmbId).lean();
+  if (!tmb || (tmb.role !== TeamMemberRoleEnum.owner && tmb.role !== TeamMemberRoleEnum.admin)) {
     throw new Error('No Permission');
   }
 
   const list = await MongoInvitationLink.find({ teamId }).sort({ createTime: -1 });
 
-  // Format list to match InvitationType
-  // InvitationType has members? The schema has members: [String].
-  // But type.ts says members: { tmbId, avatar, name }[] in InvitationType.
-  // The schema stores member IDs (string).
-  // We need to fetch member info if we want to show who used it?
-  // But usually schema members stores who USED it.
-
-  // Impl: fetch member details for 'members' array.
-  // We can populate? No, members is [String].
-  // We need to fetch MongoTeamMember where _id IN members.
-
+  // Format list to match InvitationType with member details
   const result = await Promise.all(
     list.map(async (item) => {
-      // @ts-ignore
-      const members = await import('@fastgpt/service/support/user/team/teamMemberSchema').then(
-        ({ MongoTeamMember }) =>
-          MongoTeamMember.find({ _id: { $in: item.members } }, '_id name avatar').lean()
-      );
+      const members = await MongoTeamMember.find(
+        { _id: { $in: item.members } },
+        '_id name avatar'
+      ).lean();
 
       return {
-        ...item.toObject(),
+        _id: item._id,
+        linkId: item.linkId,
+        teamId: item.teamId,
+        usedTimesLimit: item.usedTimesLimit,
+        forbidden: item.forbidden,
+        expires: item.expires,
+        description: item.description,
+        createTime: item.createTime,
         members: members.map((m: any) => ({
           tmbId: String(m._id),
-          name: m.name,
-          avatar: m.avatar
+          name: m.name || '',
+          avatar: m.avatar || ''
         }))
       };
     })

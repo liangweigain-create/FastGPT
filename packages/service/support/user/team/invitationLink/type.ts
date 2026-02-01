@@ -9,6 +9,7 @@ export type InvitationSchemaType = {
   expires: Date;
   description: string;
   members: string[];
+  createTime?: Date;
 };
 
 export type InvitationType = Omit<InvitationSchemaType, 'members'> & {

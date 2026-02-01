@@ -3,7 +3,12 @@ import { MongoInvitationLink } from '@fastgpt/service/support/user/team/invitati
 import { MongoTeam } from '@fastgpt/service/support/user/team/teamSchema';
 
 async function handler(req: any, res: any) {
-  const { linkId } = req.query as { linkId: string };
+  // Accept both 'linkId' and 'invitelinkid' for backwards compatibility
+  const linkId = (req.query.linkId || req.query.invitelinkid) as string;
+
+  if (!linkId) {
+    throw new Error('linkId is required');
+  }
 
   const link = await MongoInvitationLink.findOne({ linkId }).lean();
 
@@ -15,7 +20,7 @@ async function handler(req: any, res: any) {
     throw new Error('Link invalid or expired');
   }
 
-  if (link.usedTimesLimit !== -1 && link.members.length >= link.usedTimesLimit) {
+  if ((link.usedTimesLimit ?? -1) !== -1 && link.members.length >= (link.usedTimesLimit ?? -1)) {
     throw new Error('Link limit reached');
   }
 

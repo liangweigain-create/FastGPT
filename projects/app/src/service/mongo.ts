@@ -125,7 +125,7 @@ export async function initSystemUsers(retry = 3): Promise<any> {
       { teamId, type: SubTypeEnum.standard },
       {
         $set: {
-          maxTeamMember: 100,
+          maxTeamMember: 1000,
           maxApp: 1000,
           maxDataset: 1000,
           totalPoints: 999999999,

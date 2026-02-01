@@ -84,6 +84,8 @@ export const getInvitationInfo = (linkId: string) =>
   GET<InvitationInfoType>(`/support/user/team/invitationLink/info`, { linkId });
 export const putForbidInvitationLink = (linkId: string) =>
   PUT<string>(`/support/user/team/invitationLink/forbid`, { linkId });
+export const deleteInvitationLink = (_id: string) =>
+  DELETE(`/support/user/team/invitationLink/delete`, { _id });
 
 /* -------------- team collaborator -------------------- */
 /* -------------- team collaborator -------------------- */

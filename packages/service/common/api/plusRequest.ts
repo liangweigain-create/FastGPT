@@ -82,8 +82,9 @@ instance.interceptors.response.use(responseSuccess, (err) => Promise.reject(err)
 
 export function request(url: string, data: any, config: ConfigType, method: Method): any {
   if (!FastGPTProUrl) {
-    console.log('未部署商业版接口', url);
-    return Promise.reject(new UserError('The request was denied...'));
+    // [Privatization] Return empty/mock data for non-Pro deployments instead of throwing error
+    console.log('[Privatization] Skipping Pro API call (no FastGPTProUrl configured):', url);
+    return Promise.resolve(null);
   }
 
   /* 去空 */

@@ -1,25 +1,15 @@
 import { NextAPI } from '@/service/middleware/entry';
 import { authCert } from '@fastgpt/service/support/permission/auth/common';
 import { MongoInvitationLink } from '@fastgpt/service/support/user/team/invitationLink/schema';
-import { getTmbPermission } from '@fastgpt/service/support/permission/controller';
-import {
-  PerResourceTypeEnum,
-  ManagePermissionVal
-} from '@fastgpt/global/support/permission/constant';
-import { Permission } from '@fastgpt/global/support/permission/controller';
+import { MongoTeamMember } from '@fastgpt/service/support/user/team/teamMemberSchema';
+import { TeamMemberRoleEnum } from '@fastgpt/global/support/user/team/constant';
 
 async function handler(req: any, res: any) {
   const { teamId, tmbId } = await authCert({ req, authToken: true });
 
-  const perVal = await getTmbPermission({
-    teamId,
-    tmbId,
-    resourceType: PerResourceTypeEnum.team,
-    resourceId: undefined
-  });
-
-  const per = new Permission({ role: perVal, isOwner: false });
-  if (!per.checkPer(ManagePermissionVal)) {
+  // Check if user is owner or admin
+  const tmb = await MongoTeamMember.findById(tmbId).lean();
+  if (!tmb || (tmb.role !== TeamMemberRoleEnum.owner && tmb.role !== TeamMemberRoleEnum.admin)) {
     throw new Error('No Permission');
   }
 

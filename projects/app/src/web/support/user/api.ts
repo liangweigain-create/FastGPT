@@ -24,7 +24,7 @@ export const sendAuthCode = (data: {
   googleToken: string;
   captcha: string;
   lang: `${LangEnum}`;
-}) => POST(`/proApi/support/user/inform/sendAuthCode`, data);
+}) => POST(`/support/user/inform/sendAuthCode`, data);
 
 export const getTokenLogin = () =>
   GET<UserType>('/support/user/account/tokenLogin', {}, { maxQuantity: 1 });
@@ -44,7 +44,7 @@ export const postRegister = ({
   msclkid,
   fastgpt_sem
 }: AccountRegisterBody) =>
-  POST<LoginSuccessResponse>(`/proApi/support/user/account/register/emailAndPhone`, {
+  POST<LoginSuccessResponse>(`/support/user/account/register`, {
     username,
     code,
     inviterId,
