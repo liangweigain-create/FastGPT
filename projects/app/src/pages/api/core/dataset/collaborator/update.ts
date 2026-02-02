@@ -1,32 +1,32 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { authApp } from '@fastgpt/service/support/permission/app/auth';
+import { authDataset } from '@fastgpt/service/support/permission/dataset/auth';
 import { MongoResourcePermission } from '@fastgpt/service/support/permission/schema';
 import {
-  ManagePermissionVal,
-  PerResourceTypeEnum
+  PerResourceTypeEnum,
+  ManagePermissionVal
 } from '@fastgpt/global/support/permission/constant';
-import {
-  UpdateAppCollaboratorBodySchema,
-  type UpdateAppCollaboratorBody
-} from '@fastgpt/global/openapi/core/app/collaborator';
 import { NextAPI } from '@/service/middleware/entry';
 import { jsonRes } from '@fastgpt/service/common/response';
+import {
+  UpdateDatasetCollaboratorBodySchema,
+  type UpdateDatasetCollaboratorBody
+} from '@fastgpt/global/openapi/core/dataset/collaborator';
 
 async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
-  const { appId, collaborators } = UpdateAppCollaboratorBodySchema.parse(req.body);
+  const { datasetId, collaborators } = UpdateDatasetCollaboratorBodySchema.parse(req.body);
 
-  // Auth
-  const { teamId } = await authApp({
+  // Auth: check valid dataset and permission
+  const { teamId } = await authDataset({
     req,
     authToken: true,
-    appId,
+    datasetId,
     per: ManagePermissionVal
   });
 
   // Get existing collaborators
   const existingPerms = await MongoResourcePermission.find({
-    resourceType: PerResourceTypeEnum.app,
-    resourceId: appId,
+    resourceType: PerResourceTypeEnum.dataset,
+    resourceId: datasetId,
     teamId
   }).lean();
 
@@ -50,8 +50,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
   // Upsert permissions for each collaborator in the new list
   for (const clb of collaborators) {
     const query: any = {
-      resourceType: PerResourceTypeEnum.app,
-      resourceId: appId,
+      resourceType: PerResourceTypeEnum.dataset,
+      resourceId: datasetId,
       teamId
     };
 

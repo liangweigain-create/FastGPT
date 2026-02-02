@@ -58,6 +58,7 @@
   "role_member": "成员",
   "role_admin": "管理员",
   "role_owner": "所有者",
+  "import_members": "导入成员",
   "create_invitation_link": "创建邀请链接",
   "create_invoice": "开发票",
   "create_org": "创建部门",

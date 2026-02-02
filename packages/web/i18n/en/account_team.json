@@ -57,6 +57,7 @@
   "role_member": "Member",
   "role_admin": "Admin",
   "role_owner": "Owner",
+  "import_members": "Import Members",
   "create_invitation_link": "Create Invitation Link",
   "create_invoice": "Issuing invoices",
   "create_org": "Create organization",

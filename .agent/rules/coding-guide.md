@@ -1,12 +1,14 @@
-# CLAUDE.md
+---
+trigger: always_on
+---
 
-本文件为 Claude Code (claude.ai/code) 在本仓库中工作时提供指导说明。
+本文件为 gemini 在本仓库中工作时提供指导说明。
 
 ## 输出要求
 
 1. 输出语言：中文
-2. 输出的设计文档位置：.claude/design，以 Markdown 文件为主。
-3. 输出 Plan 时，均需写入 .claude/plan 目录下，以 Markdown 文件为主。
+2. 输出的设计文档位置：.agent/design，以 Markdown 文件为主。
+3. 输出 Plan 时，均需写入 .agent/plan 目录下，以 Markdown 文件为主。
 
 ## 项目概述
 

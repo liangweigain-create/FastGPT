@@ -68,6 +68,22 @@ export const postRestoreMember = (tmbId: string) =>
   POST('/proApi/support/user/team/member/restore', { tmbId });
 export const delLeaveTeam = () => DELETE('/proApi/support/user/team/member/leave');
 
+// [Privatization] Batch import members - only for root user
+export type BatchImportMemberItem = {
+  username: string;
+  password: string;
+  role?: 'owner' | 'admin' | 'member';
+  email?: string;
+  memberName?: string;
+};
+export type BatchImportResponse = {
+  success: number;
+  failed: number;
+  errors: { username: string; error: string }[];
+};
+export const postBatchImportMembers = (members: BatchImportMemberItem[]) =>
+  POST<BatchImportResponse>(`/support/user/team/member/batchImport`, { members });
+
 /* -------------- team invitaionlink -------------------- */
 
 /* -------------- team invitationlink -------------------- */

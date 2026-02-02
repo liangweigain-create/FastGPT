@@ -1,34 +1,33 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { authApp } from '@fastgpt/service/support/permission/app/auth';
+import { authDataset } from '@fastgpt/service/support/permission/dataset/auth';
 import { MongoResourcePermission } from '@fastgpt/service/support/permission/schema';
 import {
   PerResourceTypeEnum,
   ReadPermissionVal
 } from '@fastgpt/global/support/permission/constant';
-import { CollaboratorItemDetailType } from '@fastgpt/global/support/permission/collaborator';
 import { getClbsInfo } from '@fastgpt/service/support/permission/controller';
 import { NextAPI } from '@/service/middleware/entry';
-import { GetAppCollaboratorListQuerySchema } from '@fastgpt/global/openapi/core/app/collaborator';
+import { GetDatasetCollaboratorListQuerySchema } from '@fastgpt/global/openapi/core/dataset/collaborator';
 import type { CollaboratorListType } from '@fastgpt/global/support/permission/collaborator';
 
 async function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>
 ): Promise<CollaboratorListType> {
-  const { appId } = GetAppCollaboratorListQuerySchema.parse(req.query);
+  const { datasetId } = GetDatasetCollaboratorListQuerySchema.parse(req.query);
 
-  // Auth: check valid app and permission
-  const { teamId } = await authApp({
+  // Auth: check valid dataset and permission
+  const { teamId } = await authDataset({
     req,
     authToken: true,
-    appId,
+    datasetId,
     per: ReadPermissionVal
   });
 
   // Get all permission records
   const permissions = await MongoResourcePermission.find({
-    resourceType: PerResourceTypeEnum.app,
-    resourceId: appId,
+    resourceType: PerResourceTypeEnum.dataset,
+    resourceId: datasetId,
     teamId
   }).lean();
 

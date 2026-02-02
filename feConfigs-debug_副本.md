@@ -1,6 +1,6 @@
 # FastGPT Privatization & Debugging Mission Report
 
-## 🎯 Objective Achieved
+## Objective Achieved
 Successfully unlocked full **Team Management** and **App Creation** capabilities in the Open Source version by dismantling artificial restrictions (`feConfigs.isPlus`) and implementing missing local API logic.
 
 ## 🛠 Technical Debrief (The "Traps" We Removed)

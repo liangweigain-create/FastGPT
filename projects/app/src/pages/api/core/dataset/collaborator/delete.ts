@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { authApp } from '@fastgpt/service/support/permission/app/auth';
+import { authDataset } from '@fastgpt/service/support/permission/dataset/auth';
 import { MongoResourcePermission } from '@fastgpt/service/support/permission/schema';
 import {
   PerResourceTypeEnum,
@@ -8,30 +8,32 @@ import {
 import { NextAPI } from '@/service/middleware/entry';
 import { jsonRes } from '@fastgpt/service/common/response';
 import {
-  DeleteAppCollaboratorQuerySchema,
-  type DeleteAppCollaboratorQuery
-} from '@fastgpt/global/openapi/core/app/collaborator';
+  DeleteDatasetCollaboratorQuerySchema,
+  type DeleteDatasetCollaboratorQuery
+} from '@fastgpt/global/openapi/core/dataset/collaborator';
 
 async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
   // DELETE request parameters are typically in query
-  const { appId, tmbId, groupId, orgId } = DeleteAppCollaboratorQuerySchema.parse(req.query);
+  const { datasetId, tmbId, groupId, orgId } = DeleteDatasetCollaboratorQuerySchema.parse(
+    req.query
+  );
 
   if (!tmbId && !groupId && !orgId) {
     throw new Error('tmbId, groupId or orgId is required');
   }
 
-  // Auth
-  const { teamId } = await authApp({
+  // Auth: check valid dataset and permission
+  const { teamId } = await authDataset({
     req,
     authToken: true,
-    appId,
+    datasetId,
     per: ManagePermissionVal
   });
 
   // Build delete query
   const deleteQuery: any = {
-    resourceType: PerResourceTypeEnum.app,
-    resourceId: appId,
+    resourceType: PerResourceTypeEnum.dataset,
+    resourceId: datasetId,
     teamId
   };
 

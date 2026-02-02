@@ -53,6 +53,7 @@ import MyIconButton from '@fastgpt/web/components/common/Icon/button';
 
 const InviteModal = dynamic(() => import('./Invite/InviteModal'));
 const TeamTagModal = dynamic(() => import('@/components/support/user/team/TeamTagModal'));
+const ImportMembersModal = dynamic(() => import('./ImportMembersModal'));
 
 function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
   const { t } = useTranslation();
@@ -60,6 +61,9 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
   const { userInfo } = useUserStore();
   const { feConfigs } = useSystemStore();
   const isSyncMode = feConfigs?.register_method?.includes('sync');
+  const isRoot = userInfo?.username === 'root';
+
+  const { isOpen: isOpenImport, onOpen: onOpenImport, onClose: onCloseImport } = useDisclosure();
 
   const { myTeams, onSwitchTeam } = useContextSelector(TeamContext, (v) => v);
 
@@ -225,6 +229,18 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
               {t('account_team:user_team_invite_member')}
             </Button>
           )}
+          {isRoot && (
+            <Button
+              variant={'whitePrimary'}
+              size="md"
+              borderRadius={'md'}
+              ml={3}
+              leftIcon={<MyIcon name="common/uploadFileFill" w={'16px'} />}
+              onClick={onOpenImport}
+            >
+              {t('account_team:import_members') || 'Import Members'}
+            </Button>
+          )}
           {userInfo?.team.permission.isOwner && isSyncMode && (
             <Button
               variant={'whitePrimary'}
@@ -383,6 +399,7 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
 
       {isOpenInvite && userInfo?.team?.teamId && <InviteModal onClose={onCloseInvite} />}
       {isOpenTeamTagsAsync && <TeamTagModal onClose={onCloseTeamTagsAsync} />}
+      {isOpenImport && <ImportMembersModal onClose={onCloseImport} onSuccess={onRefreshMembers} />}
     </>
   );
 }
