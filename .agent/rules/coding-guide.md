@@ -126,3 +126,13 @@ FastGPT 是一个 AI Agent 构建平台,通过 Flow 提供开箱即用的数据�
 
 1. 对于功能的实习和复杂问题修复，优先进行文档设计，并于让用户确认后，再进行执行修复。
 2. 采用"设计文档-测试示例-代码编写-测试运行-修正代码/文档"的工作模式，以测试为核心来确保设计的正确性。
+
+## 权限系统开发规范
+
+1. **禁止直接访问 Role 字段**: 
+   - 严禁在代码中直接使用 `member.role` 或 `tmb.role`，因为该字段已废弃且可能为 `undefined`。
+   - **必须使用** `getSafeTeamMemberRole(member)` 工具函数来获取角色。
+   - 引用路径: `import { getSafeTeamMemberRole } from '@fastgpt/global/support/user/team/tools';`
+
+2. **权限校验优先**:
+   - 新功能的权限判断优先使用 `TeamPermission` (如 `hasAppCreatePer`)，而不是判断 Role。
