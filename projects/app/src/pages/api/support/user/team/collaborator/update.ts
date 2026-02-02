@@ -15,7 +15,7 @@ async function handler(req: any, res: any) {
 
   // Check if team owner or admin
   const tmb = await MongoTeamMember.findById(tmbId).lean();
-  if (tmb?.role === 'owner' || tmb?.role === 'admin') {
+  if (tmb?.role === 'owner') {
     // Pass
   } else {
     const perVal = await getTmbPermission({
