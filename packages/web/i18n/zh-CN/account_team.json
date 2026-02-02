@@ -230,6 +230,8 @@
   "permission_datasetCreate_Tip": "可以在根目录创建知识库，（文件夹下的创建权限由文件夹控制）",
   "permission_manage": "管理员",
   "permission_manage_tip": "可以管理成员、创建群组、管理所有群组、为群组和成员分配权限",
+  "permission_invitationManage": "邀请管理",
+  "permission_invitationManage_Tip": "可以创建、删除和管理团队邀请链接",
   "please_bind_contact": "请绑定联系方式",
   "purchase_plan": "升级套餐",
   "recover_team_member": "成员恢复",

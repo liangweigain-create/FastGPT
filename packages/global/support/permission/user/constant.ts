@@ -12,20 +12,23 @@ import { sumPer } from '../utils';
 export enum TeamPerKeyEnum {
   appCreate = 'appCreate',
   datasetCreate = 'datasetCreate',
-  apikeyCreate = 'apikeyCreate'
+  apikeyCreate = 'apikeyCreate',
+  invitationManage = 'invitationManage'
 }
 
 export enum TeamRoleKeyEnum {
   appCreate = 'appCreate',
   datasetCreate = 'datasetCreate',
-  apikeyCreate = 'apikeyCreate'
+  apikeyCreate = 'apikeyCreate',
+  invitationManage = 'invitationManage'
 }
 
 export const TeamPerList: PermissionListType<TeamPerKeyEnum> = {
   ...CommonPerList,
   apikeyCreate: 0b100000,
   appCreate: 0b001000,
-  datasetCreate: 0b010000
+  datasetCreate: 0b010000,
+  invitationManage: 0b1000000
 };
 
 export const TeamRoleList: RoleListType<TeamRoleKeyEnum> = {
@@ -60,6 +63,12 @@ export const TeamRoleList: RoleListType<TeamRoleKeyEnum> = {
     description: '',
     name: i18nT('account_team:permission_apikeyCreate'),
     value: 0b100000
+  },
+  [TeamRoleKeyEnum.invitationManage]: {
+    checkBoxType: 'multiple',
+    description: '',
+    name: i18nT('account_team:permission_invitationManage'),
+    value: 0b1000000
   }
 };
 
@@ -80,6 +89,14 @@ export const TeamRolePerMap: RolePerMapType = new Map([
   [
     TeamRoleList['apikeyCreate'].value,
     sumPer(TeamPerList.apikeyCreate, CommonPerList.read, CommonPerList.write) as PermissionValueType
+  ],
+  [
+    TeamRoleList['invitationManage'].value,
+    sumPer(
+      TeamPerList.invitationManage,
+      CommonPerList.read,
+      CommonPerList.write
+    ) as PermissionValueType
   ]
 ]);
 
@@ -89,6 +106,7 @@ export const TeamManageRoleVal = TeamRoleList['manage'].value;
 export const TeamAppCreateRoleVal = TeamRoleList['appCreate'].value;
 export const TeamDatasetCreateRoleVal = TeamRoleList['datasetCreate'].value;
 export const TeamApikeyCreateRoleVal = TeamRoleList['apikeyCreate'].value;
+export const TeamInvitationManageRoleVal = TeamRoleList['invitationManage'].value;
 export const TeamDefaultRoleVal = TeamReadRoleVal;
 
 export const TeamReadPermissionVal = TeamPerList.read;
@@ -97,4 +115,16 @@ export const TeamManagePermissionVal = TeamPerList.manage;
 export const TeamAppCreatePermissionVal = TeamPerList.appCreate;
 export const TeamDatasetCreatePermissionVal = TeamPerList.datasetCreate;
 export const TeamApikeyCreatePermissionVal = TeamPerList.apikeyCreate;
+export const TeamInvitationManagePermissionVal = TeamPerList.invitationManage;
 export const TeamDefaultPermissionVal = TeamReadPermissionVal;
+
+// Admin preset: Sum of all functional permissions
+export const TeamAdminPermissionVal = sumPer(
+  TeamManagePermissionVal,
+  TeamAppCreatePermissionVal,
+  TeamDatasetCreatePermissionVal,
+  TeamApikeyCreatePermissionVal,
+  TeamInvitationManagePermissionVal,
+  TeamReadPermissionVal, // Admin implies read
+  TeamWritePermissionVal // Admin implies write
+) as PermissionValueType;
