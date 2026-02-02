@@ -280,19 +280,31 @@ function PermissionManage({
                         </HStack>
                       </Td>
                       <PermissionCheckBox
-                        isDisabled={member.permission.hasManagePer && !userInfo?.permission.isOwner}
+                        isDisabled={
+                          userInfo?.team.tmbId === member.tmbId || // Can not update self
+                          (member.permission.hasManagePer && !userInfo?.permission.isOwner) ||
+                          !userInfo?.team.permission.hasManagePer
+                        }
                         role={TeamAppCreateRoleVal}
                         clbPer={member.permission}
                         id={member.tmbId!}
                       />
                       <PermissionCheckBox
-                        isDisabled={member.permission.hasManagePer && !userInfo?.permission.isOwner}
+                        isDisabled={
+                          userInfo?.team.tmbId === member.tmbId || // Can not update self
+                          (member.permission.hasManagePer && !userInfo?.permission.isOwner) ||
+                          !userInfo?.team.permission.hasManagePer
+                        }
                         role={TeamDatasetCreateRoleVal}
                         clbPer={member.permission}
                         id={member.tmbId!}
                       />
                       <PermissionCheckBox
-                        isDisabled={member.permission.hasManagePer && !userInfo?.permission.isOwner}
+                        isDisabled={
+                          userInfo?.team.tmbId === member.tmbId || // Can not update self
+                          (member.permission.hasManagePer && !userInfo?.permission.isOwner) ||
+                          !userInfo?.team.permission.hasManagePer
+                        }
                         role={TeamApikeyCreateRoleVal}
                         clbPer={member.permission}
                         id={member.tmbId!}

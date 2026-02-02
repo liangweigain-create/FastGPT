@@ -30,7 +30,7 @@ import MyIcon from '@fastgpt/web/components/common/Icon';
 import dynamic from 'next/dynamic';
 import { useRequest } from '@fastgpt/web/hooks/useRequest';
 import { delLeaveTeam } from '@/web/support/user/team/api';
-import { GetSearchUserGroupOrg, postSyncMembers } from '@/web/support/user/api';
+import { postSyncMembers } from '@/web/support/user/api';
 import {
   TeamMemberRoleEnum,
   TeamMemberStatusEnum
@@ -235,7 +235,6 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
               size="md"
               borderRadius={'md'}
               ml={3}
-              leftIcon={<MyIcon name="common/uploadFileFill" w={'16px'} />}
               onClick={onOpenImport}
             >
               {t('account_team:import_members') || 'Import Members'}
