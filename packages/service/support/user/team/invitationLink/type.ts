@@ -1,15 +1,16 @@
 import { type TeamMemberSchema } from '@fastgpt/global/support/user/team/type';
+import type { TeamMemberRoleEnum } from '@fastgpt/global/support/user/team/constant';
 
 export type InvitationSchemaType = {
   _id: string;
-  linkId: string;
   teamId: string;
-  usedTimesLimit?: number;
-  forbidden?: boolean;
+  tmbId: string;
+  role: `${TeamMemberRoleEnum}`;
   expires: Date;
-  description: string;
+  usedTimesLimit?: number;
   members: string[];
-  createTime?: Date;
+  forbidden?: boolean;
+  createTime: Date;
 };
 
 export type InvitationType = Omit<InvitationSchemaType, 'members'> & {
@@ -24,6 +25,7 @@ export type InvitationLinkExpiresType = '30m' | '7d' | '1y';
 
 export type InvitationLinkCreateType = {
   description: string;
+  role: `${TeamMemberRoleEnum}`;
   expires: InvitationLinkExpiresType;
   usedTimesLimit: 1 | -1;
 };

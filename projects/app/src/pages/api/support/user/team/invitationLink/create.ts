@@ -16,7 +16,12 @@ async function handler(req: any, res: any) {
     throw new Error('No Permission');
   }
 
-  const { description, expires, usedTimesLimit } = req.body as InvitationLinkCreateType;
+  const {
+    description,
+    expires,
+    usedTimesLimit = -1,
+    role = TeamMemberRoleEnum.member
+  } = req.body as InvitationLinkCreateType;
 
   // Calculate expiration date
   const expireDate = (() => {
@@ -31,6 +36,8 @@ async function handler(req: any, res: any) {
   await MongoInvitationLink.create({
     linkId,
     teamId,
+    tmbId,
+    role,
     usedTimesLimit: usedTimesLimit === -1 ? -1 : usedTimesLimit,
     expires: expireDate,
     description

@@ -35,7 +35,7 @@ async function handler(req: any, res: any) {
           teamId: link.teamId,
           userId,
           name: 'Member',
-          role: TeamMemberRoleEnum.member,
+          role: link.role || TeamMemberRoleEnum.member,
           status: TeamMemberStatusEnum.active,
           createTime: new Date()
         }

@@ -21,6 +21,7 @@ import MySelect from '@fastgpt/web/components/common/MySelect';
 import { useRequest } from '@fastgpt/web/hooks/useRequest';
 import { useTranslation } from 'next-i18next';
 import { useForm } from 'react-hook-form';
+import { TeamMemberRoleEnum } from '@fastgpt/global/support/user/team/constant';
 
 function CreateInvitationModal({
   onSuccess,
@@ -36,16 +37,24 @@ function CreateInvitationModal({
     { label: t('account_team:1year'), value: '1y' } // 1 year
   ];
 
+  const roleOptions = [
+    { label: t('account_team:role_member'), value: TeamMemberRoleEnum.member },
+    { label: t('account_team:role_admin'), value: TeamMemberRoleEnum.admin },
+    { label: t('account_team:role_owner'), value: TeamMemberRoleEnum.owner }
+  ];
+
   const { register, handleSubmit, watch, setValue } = useForm<InvitationLinkCreateType>({
     defaultValues: {
       description: '',
       expires: expiresOptions[1].value,
-      usedTimesLimit: 1
+      usedTimesLimit: 1,
+      role: TeamMemberRoleEnum.member
     }
   });
 
   const expires = watch('expires');
   const usedTimesLimit = watch('usedTimesLimit');
+  const role = watch('role');
 
   const { runAsync: createInvitationLink, loading } = useRequest(postCreateInvitationLink, {
     manual: true,
@@ -71,6 +80,16 @@ function CreateInvitationModal({
             <Input
               placeholder={t('account_team:invitation_link_description')}
               {...register('description', { required: true })}
+            />
+          </>
+
+          <>
+            <FormLabel required={true}>{t('user.team.role.Label')}</FormLabel>
+            <MySelect
+              list={roleOptions}
+              value={role}
+              onChange={(val) => setValue('role', val as any)}
+              minW="120px"
             />
           </>
 

@@ -1,6 +1,10 @@
 import { connectionMongo, getMongoModel } from '../../../../common/mongo';
 const { Schema } = connectionMongo;
-import { TeamCollectionName } from '@fastgpt/global/support/user/team/constant';
+import {
+  TeamCollectionName,
+  TeamMemberRoleEnum,
+  TeamMemberStatusEnum
+} from '@fastgpt/global/support/user/team/constant';
 import type { InvitationSchemaType } from './type';
 
 export const InvitationLinkCollectionName = 'team_invitation_links';
@@ -35,6 +39,11 @@ const InvitationLinkSchema = new Schema({
   members: {
     type: [String],
     default: []
+  },
+  role: {
+    type: String,
+    enum: Object.values(TeamMemberRoleEnum),
+    default: TeamMemberRoleEnum.member
   },
   createTime: {
     type: Date,
