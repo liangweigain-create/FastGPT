@@ -43,7 +43,7 @@ async function handler(req: any, res: any) {
 
       return {
         _id: item._id,
-        linkId: item.linkId,
+        linkId: (item as any).linkId,
         teamId: item.teamId,
         usedTimesLimit: item.usedTimesLimit,
         forbidden: item.forbidden,

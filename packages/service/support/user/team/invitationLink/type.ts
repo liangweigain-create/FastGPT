@@ -3,6 +3,7 @@ import type { TeamMemberRoleEnum } from '@fastgpt/global/support/user/team/const
 
 export type InvitationSchemaType = {
   _id: string;
+  linkId: string;
   teamId: string;
   tmbId: string;
   role: `${TeamMemberRoleEnum}`;
@@ -10,6 +11,7 @@ export type InvitationSchemaType = {
   usedTimesLimit?: number;
   members: string[];
   forbidden?: boolean;
+  description?: string;
   createTime: Date;
 };
 
