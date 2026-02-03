@@ -64,25 +64,25 @@ export const getCollectionQuote = (data: GetCollectionQuoteProps) =>
   POST<GetCollectionQuoteRes>(`/core/chat/quote/getCollectionQuote`, data);
 
 /*---------- chat setting ------------*/
-export const getChatSetting = () => GET<ChatSettingType>('/proApi/core/chat/setting/detail');
+export const getChatSetting = () => GET<ChatSettingType>('/core/chat/setting/detail');
 
 export const updateChatSetting = (data: Partial<ChatSettingModelType>) =>
-  POST<Partial<ChatSettingType>>('/proApi/core/chat/setting/update', data);
+  POST<Partial<ChatSettingType>>('/core/chat/setting/update', data);
 
 export const getFavouriteApps = (data?: GetChatFavouriteListParamsType) =>
-  GET<ChatFavouriteAppType[]>('/proApi/core/chat/setting/favourite/list', data);
+  GET<ChatFavouriteAppType[]>('/core/chat/setting/favourite/list', data);
 
 export const updateFavouriteApps = (data: UpdateFavouriteAppParamsType[]) =>
-  POST<ChatFavouriteAppType[]>('/proApi/core/chat/setting/favourite/update', data);
+  POST<ChatFavouriteAppType[]>('/core/chat/setting/favourite/update', data);
 
 export const updateFavouriteAppOrder = (data: { id: string; order: number }[]) =>
-  PUT<null>('/proApi/core/chat/setting/favourite/order', data);
+  PUT<null>('/core/chat/setting/favourite/order', data);
 
 export const updateFavouriteAppTags = (data: { id: string; tags: string[] }[]) =>
-  PUT<null>('/proApi/core/chat/setting/favourite/tags', data);
+  PUT<null>('/core/chat/setting/favourite/tags', data);
 
 export const deleteFavouriteApp = (data: { id: string }) =>
-  DELETE<null>('/proApi/core/chat/setting/favourite/delete', data);
+  DELETE<null>('/core/chat/setting/favourite/delete', data);
 
 /* Chat controller */
 export const postStopV2Chat = (data: StopV2ChatParams) => POST('/v2/chat/stop', data);

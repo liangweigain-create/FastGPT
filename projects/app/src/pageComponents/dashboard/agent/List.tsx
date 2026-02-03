@@ -467,7 +467,10 @@ const List = () => {
               changeOwner({
                 appId: editPerApp._id,
                 ownerId: tmbId
-              }).then(() => loadMyApps())
+              }).then(() => {
+                setEditPerAppId(undefined); // Close modal to reset state
+                loadMyApps();
+              })
           })}
           refetchResource={loadMyApps}
           hasParent={Boolean(parentId)}

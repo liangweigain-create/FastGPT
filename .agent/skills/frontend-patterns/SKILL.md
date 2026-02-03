@@ -8,6 +8,7 @@ description: Frontend development patterns for React, Next.js, state management,
 FastGPT uses a modern React stack optimized for performance and type safety.
 
 ## 1. State Management (Zustand)
+
 FastGPT uses **Zustand** for global state management, often combined with `immer` for mutable updates and `persist` for local storage.
 
 ```typescript
@@ -47,7 +48,9 @@ export const useMyStore = create<State>()(
 ```
 
 ## 2. Data Fetching (useRequest)
+
 Do **not** use `useEffect` + `fetch` for data loading. Use the custom `useRequest` hook (wrapper around `ahooks` & `tanstack-query` concepts) which handles:
+
 - Automatic error/success toasts
 - Loading states
 - Manual/Auto triggering
@@ -72,6 +75,7 @@ const {
 ```
 
 ## 3. Form Handling (react-hook-form)
+
 For complex forms, use **react-hook-form** combined with **Chakra UI**.
 
 ```typescript
@@ -93,11 +97,13 @@ const MyForm = () => {
 ```
 
 ## 4. Components & UI (Chakra UI)
+
 - **Layout**: Use `Box`, `Flex`, `Grid`, `Stack` (HStack/VStack) for almost all layouts.
 - **Styling**: Use system props (`bg`, `p`, `m`, `color`) instead of CSS classes or styled-components.
 - **Icons**: Use `@fastgpt/web/components/common/MyIcon` or typical icon sets imported as components.
 
 ## 5. Performance
+
 - **Memoization**: Use `React.memo` for list items or expensive render components.
 - **Dynamic Import**: Lazy load modals or heavy charts using `dynamic` from `next/dynamic`.
 
@@ -107,6 +113,7 @@ const HeavyChart = dynamic(() => import('./Chart'), { ssr: false });
 ```
 
 ## 6. Internationalization (i18n)
+
 Use `useTranslation` hook for all text content.
 
 ```typescript

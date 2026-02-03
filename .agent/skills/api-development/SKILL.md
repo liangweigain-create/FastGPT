@@ -6,6 +6,7 @@ description: FastGPT API Development Standards. Emphasizes strict Zod schema val
 # FastGPT API Development Standards
 
 ## 1. Core Principles
+
 - **Schema First**: Define input/output schemas in `packages/global/openapi` first.
 - **Strict Validation**: All inputs (`req.body`, `req.query`) must be parsed via Zod.
 - **Strict Output**: All responses must match the defined response schema.
@@ -103,6 +104,60 @@ if (!exists) {
 ```
 
 ## 3. Schema Best Practices
+
 - **Meta is Mandatory**: Every field must have `.meta({ description })` for OpenAPI generation.
 - **Use `nativeEnum`**: For TS enums `z.nativeEnum(MyEnum)`.
 - **Inheritance**: Use `PaginationSchema.extend({})` for lists.
+
+## 4. MongoResourcePermission Operation Rules
+
+> [!CAUTION]
+> `MongoResourcePermission` requires `teamId` in all operations. Missing `teamId` causes records to be invisible to list APIs.
+
+### 4.1 Upsert Pattern
+
+When using `updateOne` with `upsert: true`, **ALL required fields must be in both query and $set**:
+
+```typescript
+// ✅ CORRECT
+await MongoResourcePermission.updateOne(
+  {
+    resourceType: PerResourceTypeEnum.app,
+    resourceId: appId,
+    teamId,  // ← REQUIRED in query
+    tmbId: ownerId
+  },
+  {
+    $set: {
+      permission: OwnerRoleVal,
+      teamId  // ← REQUIRED in $set for upsert
+    }
+  },
+  { session, upsert: true }
+);
+
+// ❌ WRONG - Missing teamId causes invisible records
+await MongoResourcePermission.updateOne(
+  {
+    resourceType: PerResourceTypeEnum.app,
+    resourceId: appId,
+    tmbId: ownerId  // ← Missing teamId!
+  },
+  {
+    $set: {
+      permission: OwnerRoleVal  // ← Missing teamId!
+    }
+  },
+  { upsert: true }
+);
+```
+
+### 4.2 Required Fields Reference
+
+| Field | Required | Notes |
+|:---|:---:|:---|
+| `teamId` | ✓ | Must be in query AND $set for upsert |
+| `resourceType` | ✓ | Enum: `app`, `dataset`, `team`, `model` |
+| `permission` | ✓ | Integer value from permission constants |
+| `resourceId` | * | Required for app/dataset resources |
+| `tmbId` / `groupId` / `orgId` | * | At least ONE must be present |

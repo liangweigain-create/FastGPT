@@ -1,6 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-
-vi.unmock('@fastgpt/service/common/mongo/init');
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 
 import {
   createInform,
@@ -14,68 +12,54 @@ import {
   InformLevelEnum,
   SendInformTemplateCodeEnum
 } from '../../../packages/global/support/user/inform/constants';
-import { connectMongo } from '../../../packages/service/common/mongo/init';
-import { connectionMongo, MONGO_URL } from '../../../packages/service/common/mongo';
-
-const connectToDatabase = async () => {
-  try {
-    await connectionMongo.disconnect();
-  } catch (e) {}
-  await connectMongo({
-    db: connectionMongo,
-    url: 'mongodb://127.0.0.1:27017/fastgpt_test?directConnection=true'
-  });
-};
-
-const closeDatabase = async () => {
-  //  await connectionMongo.disconnect(); // connectionMongo doesn't have disconnect on top level, accessible via connection
-  await connectionMongo.connection.close();
-};
 
 describe('Inform Service', () => {
   let userId: string;
 
-  beforeAll(async () => {
-    await connectToDatabase();
-    // Create a dummy user
+  beforeEach(async () => {
+    // Create a dummy user for each test (since DB is dropped)
     const user = await MongoUser.create({
-      username: 'test-inform-user',
+      username: 'test-inform-user-' + Date.now(),
       password: 'password'
     });
     userId = String(user._id);
   });
 
   afterAll(async () => {
-    await MongoUser.deleteOne({ _id: userId });
-    await MongoUserInform.deleteMany({ userId });
-    await closeDatabase();
+    // No explicit cleanup needed as setup.ts handles DB drop
   });
 
-  it('should create an inform', async () => {
+  const createTestInform = async () => {
     await createInform({
       userId,
-      teamId: '',
+      teamId: userId,
       level: InformLevelEnum.common,
       templateCode: SendInformTemplateCodeEnum.CUSTOM,
       templateParam: { content: 'test content' }
     });
+  };
 
+  it('should create an inform', async () => {
+    await createTestInform();
     const count = await MongoUserInform.countDocuments({ userId });
     expect(count).toBe(1);
   });
 
   it('should get informs list', async () => {
+    await createTestInform();
     const { list, total } = await getInformsHandler({ userId, current: 1, pageSize: 10 });
     expect(total).toBe(1);
     expect(list[0].title).toBe(SendInformTemplateCodeEnum.CUSTOM);
   });
 
   it('should count unread', async () => {
+    await createTestInform();
     const count = await getUnreadCountHandler(userId);
     expect(count).toBe(1);
   });
 
   it('should read inform', async () => {
+    await createTestInform();
     const { list } = await getInformsHandler({ userId, current: 1, pageSize: 10 });
     const informId = String(list[0]._id);
 

@@ -10,14 +10,17 @@ FastGPT uses a **Next.js Page Router** based architecture with **Function-based 
 ## Core Architecture
 
 ### 1. Functional Service/Controller Pattern
+
 FastGPT avoids heavy class-based service layers. Business logic is organized in functional controllers within `packages/service`.
 
 **Directory Structure**:
+
 - Data Schema: `packages/service/support/core/[module]/schema.ts`
 - Business Logic: `packages/service/support/core/[module]/controller.ts`
 - API Endpoint: `projects/app/src/pages/api/[module]/[action].ts`
 
 **Example Controller (`controller.ts`)**:
+
 ```typescript
 import { MongoUser } from './schema';
 import { CreateUserProps } from '@fastgpt/global/support/user/api';
@@ -42,9 +45,11 @@ export async function createLocalUser(data: CreateUserProps) {
 ```
 
 ### 2. API Route Pattern (`NextAPI`)
+
 All Next.js API routes must be wrapped with `NextAPI` middleware for uniform error handling and response formatting.
 
 **Example API Route**:
+
 ```typescript
 import { NextApiRequest, NextApiResponse } from 'next';
 import { NextAPI } from '@/service/middleware/entry';
@@ -93,10 +98,13 @@ const {
 ## Database Patterns (Mongoose)
 
 ### 1. Direct Model Access
+
 Do not create "Repository Classes". Import `Mongo[ModelName]` directly from `schema.ts`.
 
 ### 2. Performance Best Practices
+
 - **Always use `lean()`** for read operations unless you specifically need Mongoose document methods (save, virtuals).
+
   ```typescript
   // ✅ Good
   const users = await MongoUser.find({ teamId }).lean();
@@ -104,7 +112,9 @@ Do not create "Repository Classes". Import `Mongo[ModelName]` directly from `sch
   // ❌ Bad (Heavier memory usage)
   const users = await MongoUser.find({ teamId });
   ```
+
 - **Use `Promise.all`** for independent queries.
+
   ```typescript
   const [total, list] = await Promise.all([
     MongoUser.countDocuments(match),
@@ -113,6 +123,7 @@ Do not create "Repository Classes". Import `Mongo[ModelName]` directly from `sch
   ```
 
 ### 3. Transactions (`mongoSessionRun`)
+
 Use `mongoSessionRun` helper for atomic operations spanning multiple collections.
 
 ```typescript
@@ -135,6 +146,7 @@ export const createComplexData = async (data: any) => {
 - **Console Logging**: Use `addLog` from `@fastgpt/service/common/system/log` instead of `console.log` for persistent logs.
 
 ## Validation (Best Practice)
+
 While the codebase makes heavy use of TypeScript types, **Runtime Validation** is strongly recommended for API inputs.
 
 ```typescript

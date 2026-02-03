@@ -6,7 +6,11 @@ import { mongoSessionRun } from '@fastgpt/service/common/mongo/sessionRun';
 import { MongoResourcePermission } from '@fastgpt/service/support/permission/schema';
 import { PerResourceTypeEnum } from '@fastgpt/global/support/permission/constant';
 import { MongoTeamMember } from '@fastgpt/service/support/user/team/teamMemberSchema';
-import { ReadPermissionVal } from '@fastgpt/global/support/permission/constant';
+import {
+  ReadPermissionVal,
+  ManageRoleVal,
+  OwnerRoleVal
+} from '@fastgpt/global/support/permission/constant';
 
 export type AppChangeOwnerBody = {
   appId: string;
@@ -42,23 +46,45 @@ async function handler(req: ApiRequestProps<AppChangeOwnerBody>) {
     throw new Error('Member not found in this team');
   }
 
-  // 3. Execute in transaction
   await mongoSessionRun(async (session) => {
-    // A. Update App Owner
-    await MongoApp.findByIdAndUpdate(
-      appId,
-      {
-        tmbId: ownerId
-      },
-      { session }
-    );
-
-    // B. Clean up new owner's previous permission (if they were a collaborator)
-    // Since they are now the owner, they don't need explicit permission records.
-    await MongoResourcePermission.deleteOne(
+    // 1. Update old owner permission to Manage
+    await MongoResourcePermission.updateOne(
       {
         resourceType: PerResourceTypeEnum.app,
         resourceId: appId,
+        teamId,
+        tmbId: app.tmbId
+      },
+      {
+        $set: {
+          permission: ManageRoleVal,
+          teamId // Ensure teamId is set for upsert
+        }
+      },
+      { session, upsert: true }
+    );
+
+    // 2. Update new owner permission to Owner
+    await MongoResourcePermission.updateOne(
+      {
+        resourceType: PerResourceTypeEnum.app,
+        resourceId: appId,
+        teamId,
+        tmbId: ownerId
+      },
+      {
+        $set: {
+          permission: OwnerRoleVal,
+          teamId // Ensure teamId is set for upsert
+        }
+      },
+      { session, upsert: true }
+    );
+
+    // 3. Update App Owner
+    await MongoApp.findByIdAndUpdate(
+      appId,
+      {
         tmbId: ownerId
       },
       { session }
