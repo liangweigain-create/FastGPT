@@ -155,6 +155,17 @@ export const auditLogMap = {
     typeLabel: i18nT('account_team:recover_team_member'),
     params: {} as { name?: string; memberName: string }
   },
+  // [Privatization] User account enable/disable events
+  [AuditEventEnum.FORBIDDEN_MEMBER]: {
+    content: i18nT('account_team:log_forbidden_member'),
+    typeLabel: i18nT('account_team:forbidden_member'),
+    params: {} as { name?: string; targetUsername: string }
+  },
+  [AuditEventEnum.UNFORBIDDEN_MEMBER]: {
+    content: i18nT('account_team:log_unforbidden_member'),
+    typeLabel: i18nT('account_team:unforbidden_member'),
+    params: {} as { name?: string; targetUsername: string }
+  },
   [AuditEventEnum.CREATE_DEPARTMENT]: {
     content: i18nT('account_team:log_create_department'),
     typeLabel: i18nT('account_team:create_department'),

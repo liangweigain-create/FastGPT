@@ -128,3 +128,7 @@ export const GetSearchUserGroupOrg = (
   GET<SearchResult>('/proApi/support/user/search', { searchKey, ...options }, { maxQuantity: 1 });
 
 export const ExportMembers = () => GET<{ csv: string }>('/proApi/support/user/team/member/export');
+
+// [Privatization] ROOT-only: Update user account status (enable/disable)
+export const putUpdateUserStatus = (userId: string, status: 'active' | 'forbidden') =>
+  PUT('/support/user/account/updateStatus', { userId, status });

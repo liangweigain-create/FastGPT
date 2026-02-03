@@ -30,7 +30,7 @@ import MyIcon from '@fastgpt/web/components/common/Icon';
 import dynamic from 'next/dynamic';
 import { useRequest } from '@fastgpt/web/hooks/useRequest';
 import { delLeaveTeam } from '@/web/support/user/team/api';
-import { postSyncMembers } from '@/web/support/user/api';
+import { postSyncMembers, putUpdateUserStatus } from '@/web/support/user/api';
 import {
   TeamMemberRoleEnum,
   TeamMemberStatusEnum
@@ -150,6 +150,16 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
     successToast: t('common:Success'),
     errorToast: t('common:user.team.invite.Reject')
   });
+
+  // [Privatization] ROOT-only: Update user account status
+  const { runAsync: onUpdateUserStatus } = useRequest(
+    (userId: string, status: 'active' | 'forbidden') => putUpdateUserStatus(userId, status),
+    {
+      onSuccess: onRefreshMembers,
+      successToast: t('common:Success'),
+      errorToast: t('common:Error')
+    }
+  );
 
   const isLoading = loadingMembers || isSyncing;
 
@@ -367,24 +377,66 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
                               }
                               onConfirm={() => onRemoveMember(member.tmbId)}
                             />
+                            {/* [Privatization] ROOT-only: Disable user account */}
+                            {isRoot && (
+                              <PopoverConfirm
+                                Trigger={
+                                  <Box>
+                                    <MyIconButton
+                                      icon={'common/disable'}
+                                      hoverColor={'orange.500'}
+                                      hoverBg="orange.50"
+                                      size={'1rem'}
+                                    />
+                                  </Box>
+                                }
+                                type="delete"
+                                content={t('account_team:confirm_forbidden_user', {
+                                  username: member.memberName
+                                })}
+                                onConfirm={() => onUpdateUserStatus(member.userId, 'forbidden')}
+                              />
+                            )}
                           </HStack>
                         ) : (
-                          <PopoverConfirm
-                            Trigger={
-                              <Box display={'inline-block'}>
-                                <MyIconButton
-                                  icon={'common/confirm/restoreTip'}
-                                  size={'1rem'}
-                                  hoverColor={'primary.500'}
-                                />
-                              </Box>
-                            }
-                            type="info"
-                            content={t('account_team:restore_tip', {
-                              username: member.memberName
-                            })}
-                            onConfirm={() => onRestore(member.tmbId)}
-                          />
+                          <HStack>
+                            <PopoverConfirm
+                              Trigger={
+                                <Box display={'inline-block'}>
+                                  <MyIconButton
+                                    icon={'common/confirm/restoreTip'}
+                                    size={'1rem'}
+                                    hoverColor={'primary.500'}
+                                  />
+                                </Box>
+                              }
+                              type="info"
+                              content={t('account_team:restore_tip', {
+                                username: member.memberName
+                              })}
+                              onConfirm={() => onRestore(member.tmbId)}
+                            />
+                            {/* [Privatization] ROOT-only: Enable disabled user account */}
+                            {isRoot && (
+                              <PopoverConfirm
+                                Trigger={
+                                  <Box>
+                                    <MyIconButton
+                                      icon={'common/enable'}
+                                      hoverColor={'green.500'}
+                                      hoverBg="green.50"
+                                      size={'1rem'}
+                                    />
+                                  </Box>
+                                }
+                                type="info"
+                                content={t('account_team:confirm_unforbidden_user', {
+                                  username: member.memberName
+                                })}
+                                onConfirm={() => onUpdateUserStatus(member.userId, 'active')}
+                              />
+                            )}
+                          </HStack>
                         ))}
                     </Td>
                   </Tr>
