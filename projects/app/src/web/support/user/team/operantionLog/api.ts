@@ -3,9 +3,10 @@ import type { PaginationProps, PaginationResponse } from '@fastgpt/web/common/fe
 import type { TeamAuditListItemType } from '@fastgpt/global/support/user/audit/type';
 import type { AuditEventEnum } from '@fastgpt/global/support/user/audit/constants';
 
+// [Privatization] local API
 export const getOperationLogs = (
   props: PaginationProps & {
     tmbIds?: string[];
     events?: AuditEventEnum[];
   }
-) => POST<PaginationResponse<TeamAuditListItemType>>(`/proApi/support/user/audit/list`, props);
+) => POST<PaginationResponse<TeamAuditListItemType>>(`/support/user/audit/list`, props);

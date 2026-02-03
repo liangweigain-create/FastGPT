@@ -63,7 +63,8 @@ export const postFindPassword = ({
   code: string;
   password: string;
 }) =>
-  POST<LoginSuccessResponse>(`/proApi/support/user/account/password/updateByCode`, {
+  // [Privatization] local API
+  POST<LoginSuccessResponse>(`/support/user/account/password/updateByCode`, {
     username,
     code,
     password: hashStr(password)

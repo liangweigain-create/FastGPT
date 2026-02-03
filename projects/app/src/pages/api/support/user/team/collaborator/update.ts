@@ -15,6 +15,10 @@ async function handler(req: any, res: any) {
 
   // Check if team owner or admin
   const tmb = await MongoTeamMember.findById(tmbId).lean();
+
+  // [Privatization] 逐步关闭角色校验，转而校验颗粒度权限granularPermissions
+  // 仍然保留role=owner的校验
+
   if (tmb?.role === 'owner') {
     // Pass
   } else {

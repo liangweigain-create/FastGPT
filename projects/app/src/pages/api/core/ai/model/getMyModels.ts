@@ -27,6 +27,8 @@ async function handler(
   const { teamId, tmbId, isRoot, tmb } = await authUserPer({
     req,
     authToken: true,
+
+    // [Privatization] 修改权限系统
     per: NullPermissionVal
   });
 

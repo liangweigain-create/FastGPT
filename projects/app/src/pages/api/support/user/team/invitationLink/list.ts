@@ -12,6 +12,8 @@ async function handler(req: any, res: any) {
   const { teamId, tmbId } = await authCert({ req, authToken: true });
 
   const tmb = await MongoTeamMember.findById(tmbId).lean();
+  // [Privatization] 逐步关闭角色校验，转而校验颗粒度权限granularPermissions
+
   if (!tmb) {
     throw new Error('Member not found');
   }

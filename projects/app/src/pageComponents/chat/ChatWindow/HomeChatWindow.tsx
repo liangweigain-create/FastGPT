@@ -253,6 +253,7 @@ const HomeChatWindow = () => {
       formData.chatConfig = chatBoxData.app.chatConfig || {};
 
       const { responseText } = await streamFetch({
+        // 【Privatization】local API
         url: '/api/core/chat/chatHome',
         data: {
           messages: histories,

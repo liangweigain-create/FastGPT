@@ -54,10 +54,12 @@ export const getTeamMemberCount = () => GET<{ count: number }>(`/support/user/te
 // export const postInviteTeamMember = (data: InviteMemberProps) =>
 //   POST<InviteMemberResponse>(`/proApi/support/user/team/member/invite`, data);
 export const putUpdateMemberNameByManager = (tmbId: string, name: string) =>
-  PUT(`/proApi/support/user/team/member/updateNameByManager`, { tmbId, name });
+  // [Privatization] local API
+  PUT(`/support/user/team/member/updateNameByManager`, { tmbId, name });
 
 export const putUpdateMemberName = (name: string) =>
-  PUT(`/proApi/support/user/team/member/updateName`, { name });
+  // [Privatization] local API
+  PUT(`/support/user/team/member/updateName`, { name });
 export const delRemoveMember = (tmbId: string) =>
   DELETE(`/proApi/support/user/team/member/delete`, { tmbId });
 export const updateInviteResult = (data: UpdateInviteProps) =>

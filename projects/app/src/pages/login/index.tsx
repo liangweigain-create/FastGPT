@@ -42,6 +42,7 @@ const Login = () => {
           return '/dashboard/agent';
         }
 
+        // [Privatization] 增加功能，如果用户没有读取权限，则跳转到聊天页面
         if (!res.user.team.permission.hasReadPer) {
           return '/chat';
         }

@@ -9,6 +9,8 @@ import { CommonRoleList, CommonPerList } from '../constant';
 import { i18nT } from '../../../../web/i18n/utils';
 import { sumPer } from '../utils';
 
+// [Privatization] Implemented InvitationManage permission, (暂时没有在UI增加checkbox)
+
 export enum TeamPerKeyEnum {
   appCreate = 'appCreate',
   datasetCreate = 'datasetCreate',

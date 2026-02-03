@@ -43,7 +43,7 @@ const DashboardContainer = ({
   const { isOpen: isOpenSidebar, onOpen: onOpenSidebar, onClose: onCloseSidebar } = useDisclosure();
   const { userInfo } = useUserStore();
 
-  // Redirect to chat if no permission
+  // [Privatization]Redirect to chat if no permission
   React.useEffect(() => {
     if (userInfo && !userInfo.team.permission.hasReadPer) {
       router.replace('/chat');

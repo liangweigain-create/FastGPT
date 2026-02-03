@@ -19,6 +19,8 @@ import { setCookie } from '@fastgpt/service/support/permission/auth/common';
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { username, password, code, language = 'zh-CN' } = req.body as PostLoginProps;
 
+  // [Account: Phone Number Required] In production, username should be validated as a phone number
+  // to enable SMS verification for password reset. Currently allowing any string for testing.
   if (!username || !password || !code) {
     return Promise.reject(CommonErrEnum.invalidParams);
   }
