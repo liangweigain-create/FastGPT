@@ -45,12 +45,10 @@ import MyBox from '@fastgpt/web/components/common/MyBox';
 import CollaboratorContextProvider, {
   CollaboratorContext
 } from '@/components/support/permission/MemberManager/context';
-import MyIcon from '@fastgpt/web/components/common/Icon';
 import { useContextSelector } from 'use-context-selector';
 import SearchInput from '@fastgpt/web/components/common/Input/SearchInput';
 import { GetSearchUserGroupOrg } from '@/web/support/user/api';
 import { type PermissionValueType } from '@fastgpt/global/support/permission/type';
-import { type CollaboratorItemType } from '@fastgpt/global/support/permission/collaborator';
 import type { Permission } from '@fastgpt/global/support/permission/controller';
 import { ReadRoleVal } from '@fastgpt/global/support/permission/constant';
 

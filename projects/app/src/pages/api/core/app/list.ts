@@ -4,7 +4,8 @@ import { NextAPI } from '@/service/middleware/entry';
 import { MongoResourcePermission } from '@fastgpt/service/support/permission/schema';
 import {
   PerResourceTypeEnum,
-  ReadPermissionVal
+  ReadPermissionVal,
+  NullPermissionVal
 } from '@fastgpt/global/support/permission/constant';
 import { AppPermission } from '@fastgpt/global/support/permission/app/controller';
 import { type ApiRequestProps } from '@fastgpt/service/type/next';
@@ -45,7 +46,7 @@ async function handler(req: ApiRequestProps<ListAppBody>): Promise<AppListItemTy
       req,
       authToken: true,
       authApiKey: true,
-      per: ReadPermissionVal
+      per: NullPermissionVal
     }),
     ...(parentId
       ? [

@@ -42,6 +42,10 @@ const Login = () => {
           return '/dashboard/agent';
         }
 
+        if (!res.user.team.permission.hasReadPer) {
+          return '/chat';
+        }
+
         return decodeLastRoute;
       })();
 

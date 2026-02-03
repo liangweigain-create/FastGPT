@@ -107,7 +107,7 @@ export const TeamAppCreateRoleVal = TeamRoleList['appCreate'].value;
 export const TeamDatasetCreateRoleVal = TeamRoleList['datasetCreate'].value;
 export const TeamApikeyCreateRoleVal = TeamRoleList['apikeyCreate'].value;
 export const TeamInvitationManageRoleVal = TeamRoleList['invitationManage'].value;
-export const TeamDefaultRoleVal = TeamReadRoleVal;
+export const TeamDefaultRoleVal = 0;
 
 export const TeamReadPermissionVal = TeamPerList.read;
 export const TeamWritePermissionVal = TeamPerList.write;

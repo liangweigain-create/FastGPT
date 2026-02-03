@@ -14,6 +14,9 @@ import { getTemplateMarketItemList, getTemplateTagList } from '@/web/core/app/ap
 import type { AppTemplateSchemaType, TemplateTypeSchemaType } from '@fastgpt/global/core/app/type';
 import TeamPlanStatusCard from './TeamPlanStatusCard';
 
+import { useUserStore } from '@/web/support/user/useUserStore';
+import React from 'react';
+
 export enum TabEnum {
   agent = 'agent',
   tool = 'tool',
@@ -38,6 +41,14 @@ const DashboardContainer = ({
   const { isPc } = useSystem();
   const { feConfigs } = useSystemStore();
   const { isOpen: isOpenSidebar, onOpen: onOpenSidebar, onClose: onCloseSidebar } = useDisclosure();
+  const { userInfo } = useUserStore();
+
+  // Redirect to chat if no permission
+  React.useEffect(() => {
+    if (userInfo && !userInfo.team.permission.hasReadPer) {
+      router.replace('/chat');
+    }
+  }, [userInfo, router]);
 
   // First tab
   const currentTab = useMemo(() => {
