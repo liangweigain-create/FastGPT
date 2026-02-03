@@ -13,6 +13,11 @@ export type UserBoxProps = {
 function UserBox({ sourceMember, avatarSize = '1.25rem', ...props }: UserBoxProps) {
   const { t } = useTranslation();
 
+  // [Privatization] Guard against undefined sourceMember
+  if (!sourceMember) {
+    return null;
+  }
+
   return (
     <HStack space="1" {...props}>
       <Avatar src={sourceMember.avatar} w={avatarSize} borderRadius={'xs'} />
