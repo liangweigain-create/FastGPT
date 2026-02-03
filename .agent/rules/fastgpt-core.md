@@ -117,13 +117,9 @@ FastGPT 是一个 AI Agent 构建平台,通过 Flow 提供开箱即用的数据�
 - 支持特定环境配置
 - 模型配置在 `packages/service/core/ai/config/`
 
-## 代码规范
-
-- 尽可能使用 type 进行类型声明，而不是 interface。
-
 ## Agent 设计规范
 
-1. 对于功能的实习和复杂问题修复，优先进行文档设计，并于让用户确认后，再进行执行修复。
+1. 对于功能的实现和复杂问题修复，优先进行文档设计，并于让用户确认后，再进行执行修复。
 2. 采用"设计文档-测试示例-代码编写-测试运行-修正代码/文档"的工作模式，以测试为核心来确保设计的正确性。
 3. 所有较大修改：如本地api实现，功能大改，权限修改，逻辑变化大的代码修改，必须注释[Privatization]...
 
@@ -136,3 +132,18 @@ FastGPT 是一个 AI Agent 构建平台,通过 Flow 提供开箱即用的数据�
 
 2. **权限校验优先**:
    - 新功能的权限判断优先使用 `TeamPermission` (如 `hasAppCreatePer`)，而不是判断 Role。
+
+## Context Window Management
+
+Avoid last 20% of context window for:
+
+Large-scale refactoring
+Feature implementation spanning multiple files
+Debugging complex interactions
+
+Lower context sensitivity tasks:
+
+Single-file edits
+Independent utility creation
+Documentation updates
+Simple bug fixes
