@@ -60,7 +60,12 @@ const Standard = ({
   const { data: coupons = [], runAsync: getCoupons } = useRequest(
     async () => {
       if (!myStandardPlan?.teamId) return [];
-      return getDiscountCouponList(myStandardPlan.teamId);
+      try {
+        const res = await getDiscountCouponList(myStandardPlan.teamId);
+        return Array.isArray(res) ? res : [];
+      } catch (error) {
+        return [];
+      }
     },
     {
       manual: !myStandardPlan?.teamId,
