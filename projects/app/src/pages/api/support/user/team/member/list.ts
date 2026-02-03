@@ -1,19 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { authCert } from '@fastgpt/service/support/permission/auth/common';
 import { MongoTeamMember } from '@fastgpt/service/support/user/team/teamMemberSchema';
+import { MongoUser } from '@fastgpt/service/support/user/schema';
 import { getTmbPermission } from '@fastgpt/service/support/permission/controller';
 import { PerResourceTypeEnum } from '@fastgpt/global/support/permission/constant';
 import { TeamPermission } from '@fastgpt/global/support/permission/user/controller';
-import { TeamMemberRoleEnum } from '@fastgpt/global/support/user/team/constant';
+import { TeamMemberStatusEnum } from '@fastgpt/global/support/user/team/constant';
 import { TeamDefaultRoleVal } from '@fastgpt/global/support/permission/user/constant';
-// PaginationResponse might be in different place or local. Checking patterns.
-// Actually PagingResponse is usually in @fastgpt/web/common/fetch/type or similar, but this is backend.
-// Let's use PagingResponse from global type if available or just define it.
-// Checking projects/app/src/web/support/user/team/api.ts line 24: import type { PaginationResponse } from '@fastgpt/web/common/fetch/type';
-// Backend shouldn't import from web.
-// Let's verify where PaginationResponse is defined for backend.
-// Usually backend returns { list: T[], total: number }.
-// Let 's assume custom type matching frontend expectation.
+
 import type { TeamMemberItemType } from '@fastgpt/global/support/user/team/type';
 import { NextAPI } from '@/service/middleware/entry';
 
@@ -59,6 +53,11 @@ async function handler(
       .lean()
   ]);
 
+  // [Privatization] Fetch user status to check if global account is forbidden
+  const userIds = members.map((m) => m.userId);
+  const users = await MongoUser.find({ _id: { $in: userIds } }, 'status').lean();
+  const userStatusMap = new Map(users.map((u) => [String(u._id), u.status]));
+
   const list: TeamMemberItemType[] = await Promise.all(
     members.map(async (member) => {
       const role =
@@ -68,6 +67,11 @@ async function handler(
           tmbId: member._id
         })) ?? TeamDefaultRoleVal;
 
+      const userStatus = userStatusMap.get(String(member.userId));
+      // If user is globally forbidden, override team member status
+      const displayStatus =
+        userStatus === 'forbidden' ? TeamMemberStatusEnum.forbidden : member.status;
+
       return {
         userId: String(member.userId),
         tmbId: String(member._id),
@@ -75,7 +79,7 @@ async function handler(
         memberName: member.name,
         avatar: member.avatar,
         role: member.role as any,
-        status: member.status as any,
+        status: displayStatus as any,
         createTime: member.createTime,
         permission: new TeamPermission({
           role,

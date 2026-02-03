@@ -4,12 +4,14 @@ import {
   Button,
   Flex,
   HStack,
+  Switch,
   Table,
   TableContainer,
   Tbody,
   Td,
   Th,
   Thead,
+  Tooltip,
   Tr,
   useDisclosure,
   VStack
@@ -343,63 +345,11 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
                       </VStack>
                     </Td>
                     <Td>
-                      {userInfo?.team.permission.hasManagePer &&
-                        member.role !== TeamMemberRoleEnum.owner &&
-                        member.tmbId !== userInfo?.team.tmbId &&
-                        (member.status === TeamMemberStatusEnum.active ? (
-                          <HStack>
-                            <MyIconButton
-                              icon={'edit'}
-                              size="1rem"
-                              hoverColor={'blue.500'}
-                              onClick={() => handleEditMemberName(member.tmbId, member.memberName)}
-                            />
-                            <PopoverConfirm
-                              Trigger={
-                                <Box>
-                                  <MyIconButton
-                                    icon={'common/trash'}
-                                    hoverColor={'red.500'}
-                                    hoverBg="red.50"
-                                    size={'1rem'}
-                                  />
-                                </Box>
-                              }
-                              type="delete"
-                              content={
-                                isSyncMode
-                                  ? t('account_team:forbidden_tip', {
-                                      username: member.memberName
-                                    })
-                                  : t('account_team:remove_tip', {
-                                      username: member.memberName
-                                    })
-                              }
-                              onConfirm={() => onRemoveMember(member.tmbId)}
-                            />
-                            {/* [Privatization] ROOT-only: Disable user account */}
-                            {isRoot && (
-                              <PopoverConfirm
-                                Trigger={
-                                  <Box>
-                                    <MyIconButton
-                                      icon={'common/disable'}
-                                      hoverColor={'orange.500'}
-                                      hoverBg="orange.50"
-                                      size={'1rem'}
-                                    />
-                                  </Box>
-                                }
-                                type="delete"
-                                content={t('account_team:confirm_forbidden_user', {
-                                  username: member.memberName
-                                })}
-                                onConfirm={() => onUpdateUserStatus(member.userId, 'forbidden')}
-                              />
-                            )}
-                          </HStack>
-                        ) : (
-                          <HStack>
+                      <HStack>
+                        {userInfo?.team.permission.hasManagePer &&
+                          member.role !== TeamMemberRoleEnum.owner &&
+                          member.tmbId !== userInfo?.team.tmbId &&
+                          (member.status === TeamMemberStatusEnum.leave ? (
                             <PopoverConfirm
                               Trigger={
                                 <Box display={'inline-block'}>
@@ -416,28 +366,75 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
                               })}
                               onConfirm={() => onRestore(member.tmbId)}
                             />
-                            {/* [Privatization] ROOT-only: Enable disabled user account */}
-                            {isRoot && (
+                          ) : (
+                            <>
+                              <MyIconButton
+                                icon={'edit'}
+                                size="1rem"
+                                hoverColor={'blue.500'}
+                                onClick={() =>
+                                  handleEditMemberName(member.tmbId, member.memberName)
+                                }
+                              />
                               <PopoverConfirm
                                 Trigger={
                                   <Box>
                                     <MyIconButton
-                                      icon={'common/enable'}
-                                      hoverColor={'green.500'}
-                                      hoverBg="green.50"
+                                      icon={'common/trash'}
+                                      hoverColor={'red.500'}
+                                      hoverBg="red.50"
                                       size={'1rem'}
                                     />
                                   </Box>
                                 }
-                                type="info"
-                                content={t('account_team:confirm_unforbidden_user', {
-                                  username: member.memberName
-                                })}
-                                onConfirm={() => onUpdateUserStatus(member.userId, 'active')}
+                                type="delete"
+                                content={
+                                  isSyncMode
+                                    ? t('account_team:forbidden_tip', {
+                                        username: member.memberName
+                                      })
+                                    : t('account_team:remove_tip', {
+                                        username: member.memberName
+                                      })
+                                }
+                                onConfirm={() => onRemoveMember(member.tmbId)}
                               />
-                            )}
-                          </HStack>
-                        ))}
+                            </>
+                          ))}
+                        {/* [Privatization] ROOT-only: Toggle user account active/forbidden status */}
+                        {isRoot &&
+                          member.role !== TeamMemberRoleEnum.owner &&
+                          member.tmbId !== userInfo?.team.tmbId && (
+                            <Tooltip
+                              label={
+                                member.status === TeamMemberStatusEnum.active
+                                  ? t('account_team:confirm_forbidden_user', {
+                                      username: member.memberName
+                                    })
+                                  : t('account_team:confirm_unforbidden_user', {
+                                      username: member.memberName
+                                    })
+                              }
+                              placement="top"
+                            >
+                              <Box>
+                                <Switch
+                                  size="sm"
+                                  isChecked={member.status === TeamMemberStatusEnum.active}
+                                  colorScheme="green"
+                                  onChange={() =>
+                                    onUpdateUserStatus(
+                                      member.userId,
+                                      member.status === TeamMemberStatusEnum.active
+                                        ? 'forbidden'
+                                        : 'active'
+                                    )
+                                  }
+                                />
+                              </Box>
+                            </Tooltip>
+                          )}
+                      </HStack>
                     </Td>
                   </Tr>
                 ))}
