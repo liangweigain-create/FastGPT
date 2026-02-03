@@ -1,14 +1,55 @@
-import type { ChatHistoryItemResType, ChatItemType } from '@fastgpt/global/core/chat/type';
+import type { ChatHistoryItemResType, ChatItemType, AIChatItemType, UserChatItemType } from '@fastgpt/global/core/chat/type';
 import { MongoChatItem } from './chatItemSchema';
 import { MongoChat } from './chatSchema';
 import { addLog } from '../../common/system/log';
-import { DispatchNodeResponseKeyEnum } from '@fastgpt/global/core/workflow/runtime/constants';
-import { ChatRoleEnum } from '@fastgpt/global/core/chat/constants';
+import { DispatchNodeResponseKeyEnum, SseResponseEventEnum } from '@fastgpt/global/core/workflow/runtime/constants';
+import type { ChatSourceEnum } from '@fastgpt/global/core/chat/constants';
+import { ChatRoleEnum, ChatItemValueTypeEnum } from '@fastgpt/global/core/chat/constants';
 import { MongoChatItemResponse } from './chatItemResponseSchema';
 import type { ClientSession } from '../../common/mongo';
 import { Types } from '../../common/mongo';
 import { mongoSessionRun } from '../../common/mongo/sessionRun';
 import { UserError } from '@fastgpt/global/common/error/utils';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { sseErrRes, responseWrite } from '../../common/response';
+import { UsageSourceEnum } from '@fastgpt/global/support/wallet/usage/constants';
+import { authApp } from '../../support/permission/app/auth';
+import { dispatchWorkFlow } from '../workflow/dispatch';
+import { getRunningUserInfoByTmbId } from '../../support/user/team/utils';
+import type { StoreEdgeItemType } from '@fastgpt/global/core/workflow/type/edge';
+import {
+  concatHistories,
+  getChatTitleFromChatMessage,
+  removeEmptyUserInput
+} from '@fastgpt/global/core/chat/utils';
+import type { PermissionValueType } from '@fastgpt/global/support/permission/type';
+import { AppTypeEnum } from '@fastgpt/global/core/app/constants';
+import {
+  serverGetWorkflowToolRunUserQuery,
+  updateWorkflowToolInputByVariables
+} from '../app/tool/workflowTool/utils';
+import { GPTMessages2Chats } from '@fastgpt/global/core/chat/adapt';
+import type { ChatCompletionMessageParam } from '@fastgpt/global/core/ai/type';
+import type { AppChatConfigType } from '@fastgpt/global/core/app/type';
+import {
+  getLastInteractiveValue,
+  getMaxHistoryLimitFromNodes,
+  getWorkflowEntryNodeIds,
+  storeEdges2RuntimeEdges,
+  rewriteNodeOutputByHistories,
+  storeNodes2RuntimeNodes,
+  textAdaptGptResponse
+} from '@fastgpt/global/core/workflow/runtime/utils';
+import type { StoreNodeItemType } from '@fastgpt/global/core/workflow/type/node';
+import { getWorkflowResponseWrite } from '../workflow/dispatch/utils';
+import { WORKFLOW_MAX_RUN_TIMES } from '../workflow/constants';
+import { getWorkflowToolInputsFromStoreNodes } from '@fastgpt/global/core/app/tool/workflowTool/utils';
+import { saveChat, updateInteractiveChat } from './saveChat';
+import { getLocale } from '../../common/middle/i18n';
+import { formatTime2YMDHM } from '@fastgpt/global/common/string/time';
+import { LimitTypeEnum, teamFrequencyLimit } from '../../common/api/frequencyLimit';
+import { getIpFromRequest } from '../../common/geo';
+import { pushTrack } from '../../common/middle/tracks/utils';
 
 export async function getChatItems({
   includeDeleted = false,
@@ -346,5 +387,239 @@ export async function updateChatFeedbackCount({
   } catch (error) {
     addLog.error('updateChatFeedbackCount error', error);
     throw error;
+  }
+}
+
+export type DispatchChatProps = {
+  messages: ChatCompletionMessageParam[];
+  responseChatItemId: string;
+  nodes: StoreNodeItemType[];
+  edges: StoreEdgeItemType[];
+  variables: Record<string, any>;
+  appId: string;
+  appName: string;
+  chatId: string;
+  chatConfig: AppChatConfigType;
+};
+
+export async function dispatchChatCompletion({
+  req,
+  res,
+  body,
+  permission = -1,
+  chatSource
+}: {
+  req: NextApiRequest;
+  res: NextApiResponse;
+  body: DispatchChatProps;
+  permission?: PermissionValueType;
+  chatSource: ChatSourceEnum;
+}) {
+  let {
+    nodes = [],
+    edges = [],
+    messages = [],
+    responseChatItemId,
+    variables = {},
+    appName,
+    appId,
+    chatConfig,
+    chatId
+  } = body || {};
+
+  try {
+    if (!Array.isArray(nodes)) {
+      throw new Error('Nodes is not array');
+    }
+    if (!Array.isArray(edges)) {
+      throw new Error('Edges is not array');
+    }
+
+    const originIp = getIpFromRequest(req);
+    const chatMessages = GPTMessages2Chats({ messages });
+
+    /* user auth */
+    const { app, teamId, tmbId } = await authApp({
+      req,
+      authToken: true,
+      appId,
+      per: permission
+    });
+
+    if (
+      !(await teamFrequencyLimit({
+        teamId,
+        type: LimitTypeEnum.chat,
+        res
+      }))
+    ) {
+      return;
+    }
+
+    pushTrack.teamChatQPM({ teamId });
+
+    const isPlugin = app.type === AppTypeEnum.workflowTool;
+    const isTool = app.type === AppTypeEnum.tool;
+
+    const userQuestion: UserChatItemType = await (async () => {
+      if (isPlugin) {
+        return serverGetWorkflowToolRunUserQuery({
+          pluginInputs: getWorkflowToolInputsFromStoreNodes(nodes),
+          variables,
+          files: variables.files
+        });
+      }
+      if (isTool) {
+        return {
+          obj: ChatRoleEnum.Human,
+          value: [
+            {
+              type: ChatItemValueTypeEnum.text,
+              text: { content: 'tool test' }
+            }
+          ]
+        };
+      }
+
+      const latestHumanChat = chatMessages.pop() as UserChatItemType;
+      if (!latestHumanChat) {
+        return Promise.reject(new UserError('User question is empty'));
+      }
+      return latestHumanChat;
+    })();
+
+    const limit = getMaxHistoryLimitFromNodes(nodes);
+    const [{ histories }, chatDetail] = await Promise.all([
+      getChatItems({
+        appId,
+        chatId,
+        offset: 0,
+        limit,
+        field: `obj value memories`
+      }),
+      MongoChat.findOne({ appId: app._id, chatId }, 'source variableList variables')
+    ]);
+
+    if (chatDetail?.variables) {
+      variables = {
+        ...chatDetail.variables,
+        ...variables
+      };
+    }
+
+    const newHistories = concatHistories(histories, chatMessages);
+    const interactive = getLastInteractiveValue(newHistories) || undefined;
+    
+    // Get runtimeNodes
+    let runtimeNodes = storeNodes2RuntimeNodes(nodes, getWorkflowEntryNodeIds(nodes, interactive));
+    if (isPlugin) {
+      runtimeNodes = updateWorkflowToolInputByVariables(runtimeNodes, variables);
+      variables = {};
+    }
+    runtimeNodes = rewriteNodeOutputByHistories(runtimeNodes, interactive);
+
+    const workflowResponseWrite = getWorkflowResponseWrite({
+      res,
+      detail: true,
+      streamResponse: true,
+      id: chatId,
+      showNodeStatus: true
+    });
+
+    /* start process */
+    const {
+      flowResponses,
+      assistantResponses,
+      system_memories,
+      newVariables,
+      durationSeconds,
+      customFeedbacks
+    } = await dispatchWorkFlow({
+      apiVersion: 'v2',
+      res,
+      lang: getLocale(req),
+      requestOrigin: req.headers.origin,
+      mode: 'test',
+      usageSource: UsageSourceEnum.fastgpt,
+
+      uid: tmbId,
+
+      runningAppInfo: {
+        id: appId,
+        name: appName,
+        teamId: app.teamId,
+        tmbId: app.tmbId
+      },
+      runningUserInfo: await getRunningUserInfoByTmbId(tmbId),
+
+      chatId,
+      responseChatItemId,
+      runtimeNodes,
+      runtimeEdges: storeEdges2RuntimeEdges(edges, interactive),
+      variables,
+      query: removeEmptyUserInput(userQuestion.value),
+      lastInteractive: interactive,
+      chatConfig,
+      histories: newHistories,
+      stream: true,
+      maxRunTimes: WORKFLOW_MAX_RUN_TIMES,
+      workflowStreamResponse: workflowResponseWrite,
+      responseDetail: true
+    });
+
+    workflowResponseWrite({
+      event: SseResponseEventEnum.answer,
+      data: textAdaptGptResponse({
+        text: null,
+        finish_reason: 'stop'
+      })
+    });
+    responseWrite({
+      res,
+      event: SseResponseEventEnum.answer,
+      data: '[DONE]'
+    });
+
+    // save chat
+    const isInteractiveRequest = !!getLastInteractiveValue(histories);
+
+    const newTitle = isPlugin
+      ? variables.cTime || formatTime2YMDHM(new Date())
+      : getChatTitleFromChatMessage(userQuestion);
+
+    const aiResponse: AIChatItemType & { dataId?: string } = {
+      dataId: responseChatItemId,
+      obj: ChatRoleEnum.AI,
+      value: assistantResponses,
+      memories: system_memories,
+      [DispatchNodeResponseKeyEnum.nodeResponse]: flowResponses,
+      customFeedbacks
+    };
+    const params = {
+      chatId,
+      appId: app._id,
+      teamId,
+      tmbId: tmbId,
+      nodes,
+      appChatConfig: chatConfig,
+      variables: newVariables,
+      newTitle,
+      source: chatSource,
+      userContent: userQuestion,
+      aiContent: aiResponse,
+      durationSeconds,
+      metadata: {
+        originIp
+      }
+    };
+
+    if (isInteractiveRequest) {
+      await updateInteractiveChat(params);
+    } else {
+      await saveChat(params);
+    }
+  } catch (err: any) {
+    res.status(500);
+    sseErrRes(res, err);
   }
 }

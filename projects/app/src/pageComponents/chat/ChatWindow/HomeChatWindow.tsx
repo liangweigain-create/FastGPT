@@ -88,7 +88,7 @@ const HomeChatWindow = () => {
   const totalRecordsCount = useContextSelector(ChatRecordContext, (v) => v.totalRecordsCount);
 
   const isQuickApp = useMemo(
-    () => chatSettings?.quickAppList.some((app) => app._id === appId),
+    () => chatSettings?.quickAppList?.some((app) => app._id === appId),
     [chatSettings?.quickAppList, appId]
   );
 
@@ -253,7 +253,7 @@ const HomeChatWindow = () => {
       formData.chatConfig = chatBoxData.app.chatConfig || {};
 
       const { responseText } = await streamFetch({
-        url: '/api/proApi/core/chat/chatHome',
+        url: '/api/core/chat/chatHome',
         data: {
           messages: histories,
           variables,

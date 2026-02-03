@@ -1,6 +1,5 @@
 import { GET, POST, PUT, DELETE } from '@/web/common/api/request';
 import type {
-  CollaboratorItemType,
   CollaboratorListType,
   DeletePermissionQuery,
   UpdateClbPermissionProps

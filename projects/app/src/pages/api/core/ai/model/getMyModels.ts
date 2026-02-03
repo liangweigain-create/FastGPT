@@ -1,7 +1,7 @@
 import type { ApiRequestProps, ApiResponseType } from '@fastgpt/service/type/next';
 import { NextAPI } from '@/service/middleware/entry';
 import { authUserPer } from '@fastgpt/service/support/permission/user/auth';
-import { ReadPermissionVal } from '@fastgpt/global/support/permission/constant';
+import { NullPermissionVal } from '@fastgpt/global/support/permission/constant';
 import { getMyModels } from '@fastgpt/service/support/permission/model/controller';
 import { getVersionKey } from '@fastgpt/service/common/cache';
 import { SystemCacheKeyEnum } from '@fastgpt/service/common/cache/type';
@@ -27,7 +27,7 @@ async function handler(
   const { teamId, tmbId, isRoot, tmb } = await authUserPer({
     req,
     authToken: true,
-    per: ReadPermissionVal
+    per: NullPermissionVal
   });
 
   const { versionKey } = req.query;

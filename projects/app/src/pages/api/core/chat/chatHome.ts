@@ -1,6 +1,6 @@
 import { NextAPI } from '@/service/middleware/entry';
 import { dispatchChatCompletion } from '@fastgpt/service/core/chat/controller';
-import { ReadPermissionVal } from '@fastgpt/global/support/permission/constant';
+import { NullPermissionVal } from '@fastgpt/global/support/permission/constant';
 import { ChatSourceEnum } from '@fastgpt/global/core/chat/constants';
 
 async function handler(req: any, res: any) {
@@ -8,8 +8,8 @@ async function handler(req: any, res: any) {
     req,
     res,
     body: req.body,
-    permission: ReadPermissionVal,
-    chatSource: ChatSourceEnum.test
+    permission: NullPermissionVal,
+    chatSource: ChatSourceEnum.online
   });
 }
 

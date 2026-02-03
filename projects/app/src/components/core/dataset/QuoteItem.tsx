@@ -155,7 +155,11 @@ const QuoteItem = ({
                     borderWidth={'1px'}
                     borderRadius={'sm'}
                     mr={'2px'}
-                    {...(scoreTheme[i] && scoreTheme[i])}
+                    {...(scoreTheme[i] && {
+                      color: scoreTheme[i].color,
+                      bg: scoreTheme[i].bg,
+                      borderColor: scoreTheme[i].borderColor
+                    })}
                   >
                     <Box transform={'scale(0.9)'}>#{item.index + 1}</Box>
                   </Box>
