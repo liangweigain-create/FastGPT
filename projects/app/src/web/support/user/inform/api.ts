@@ -4,14 +4,14 @@ import type { SystemMsgModalValueType } from '@fastgpt/global/openapi/admin/supp
 import type { PaginationProps, PaginationResponse } from '@fastgpt/web/common/fetch/type';
 
 export const getInforms = (data: PaginationProps) =>
-  POST<PaginationResponse<UserInformType>>(`/proApi/support/user/inform/list`, data);
+  POST<PaginationResponse<UserInformType>>(`/support/user/inform/list`, data);
 
 export const getUnreadCount = () =>
   GET<{
     unReadCount: number;
     importantInforms: UserInformType[];
-  }>(`/proApi/support/user/inform/countUnread`);
-export const readInform = (id: string) => GET(`/proApi/support/user/inform/read`, { id });
+  }>(`/support/user/inform/countUnread`);
+export const readInform = (id: string) => GET(`/support/user/inform/read`, { id });
 
 export const getSystemMsgModalData = () =>
-  GET<SystemMsgModalValueType>(`/proApi/support/user/inform/getSystemMsgModal`);
+  GET<SystemMsgModalValueType>(`/support/user/inform/getSystemMsgModal`);

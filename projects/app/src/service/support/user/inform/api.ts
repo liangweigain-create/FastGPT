@@ -1,8 +1,19 @@
-import { POST } from '@fastgpt/service/common/api/plusRequest';
 import { type SendInform2UserProps } from '@fastgpt/global/support/user/inform/type';
-import { FastGPTProUrl } from '@fastgpt/service/common/system/constants';
+import { createInform } from '@fastgpt/service/support/user/inform/controller';
+import { MongoTeamMember } from '@fastgpt/service/support/user/team/teamMemberSchema';
+import { TeamMemberRoleEnum } from '@fastgpt/global/support/user/team/constant';
 
-export function sendOneInform(data: SendInform2UserProps) {
-  if (!FastGPTProUrl) return;
-  return POST('/support/user/inform/create', data);
+export async function sendOneInform(data: SendInform2UserProps) {
+  // Find team owner
+  const owner = await MongoTeamMember.findOne({
+    teamId: data.teamId,
+    role: TeamMemberRoleEnum.owner
+  });
+
+  if (owner) {
+    await createInform({
+      ...data,
+      userId: String(owner.userId)
+    });
+  }
 }
