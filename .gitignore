@@ -40,3 +40,11 @@ coverage
 document/.source
 
 projects/app/worker/
+
+# Docker local data
+deploy/docker/cn/mongo/
+deploy/docker/cn/pg/
+deploy/docker/cn/redis/
+deploy/docker/cn/fastgpt-minio/
+deploy/docker/cn/aiproxy_pg/
+deploy/docker/cn/config.json
